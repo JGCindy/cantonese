@@ -1615,17 +1615,14 @@ body.dock-lift .dock-stack{transform:translateY(calc(-1 * var(--dock-h,68px)))}
 /* 面板分兩組：皮膚 / 明暗 */
 .qd-theme-menu .grp{padding:6px 10px 4px;font-size:11px;font-weight:800;color:var(--ink-4);letter-spacing:.04em}
 .qd-theme-menu .swatches{display:flex;gap:8px;padding:0 6px 8px}
-.qd-theme-menu .sw{display:block;flex:1;border:2px solid var(--line-2);border-radius:11px;background:transparent;
-  padding:0;cursor:pointer;font-family:inherit;overflow:hidden;transition:.15s;position:relative}
-.qd-theme-menu .sw:hover{border-color:var(--mint)}
-.qd-theme-menu .sw.on{border-color:var(--mint);box-shadow:0 0 0 3px var(--mint-soft)}
-.qd-theme-menu .sw .sp{display:block;height:30px;background:linear-gradient(135deg,#3ad6ae,#eaf7f2 62%)}
-.qd-theme-menu .sw.pk .sp{background:linear-gradient(135deg,#e8619f,#fff5f9 62%,#a78bfa)}
-.qd-theme-menu .sw .tg{display:block;padding:5px 2px 6px;font-size:11.5px;font-weight:800;color:var(--ink-2);
-  text-align:center;background:var(--surface)}
-.qd-theme-menu .sw.on .tg{color:var(--mint-2)}
-.qd-theme-menu .sw svg.tick{position:absolute;top:4px;right:4px;width:13px;height:13px;color:#fff;
-  filter:drop-shadow(0 1px 2px rgba(0,0,0,.35))}
+/* 純文字膠囊：不做縮略圖、不放勾選圖標，選中靠描邊+底色 */
+.qd-theme-menu .sw{display:block;flex:1;padding:8px 4px;border:1.5px solid var(--line-2);border-radius:10px;
+  background:var(--surface);cursor:pointer;font-family:inherit;font-size:12.5px;font-weight:800;
+  color:var(--ink-2);text-align:center;transition:.15s;line-height:1.2}
+.qd-theme-menu .sw:hover{border-color:var(--mint);color:var(--mint-2)}
+.qd-theme-menu .sw.on{border-color:var(--mint);background:var(--mint-soft);color:var(--mint-2);font-weight:900;
+  box-shadow:0 0 0 2px var(--mint-soft)}
+.qd-theme-menu .sw .sp,.qd-theme-menu .sw svg.tick{display:none}
 :root[data-theme="dark"] .qd-theme-menu button:hover,
 :root[data-theme="dark"] .qd-theme-menu button.on{color:var(--mint-ink)}
 
@@ -2745,14 +2742,8 @@ body.dock-lift .dock-stack{transform:translateY(calc(-1 * var(--dock-h,68px)))}
       <div class="qd-theme-menu" id="qdThemeMenu" role="menu" aria-label="外觀設定">
         <div class="grp">皮膚</div>
         <div class="swatches">
-          <button type="button" role="menuitemradio" class="sw gn" data-skin-act="green" aria-checked="true" title="清新綠">
-            <svg class="tick" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg>
-            <span class="sp"></span><span class="tg">清新綠</span>
-          </button>
-          <button type="button" role="menuitemradio" class="sw pk" data-skin-act="pink" aria-checked="false" title="千禧粉">
-            <svg class="tick" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg>
-            <span class="sp"></span><span class="tg">千禧粉</span>
-          </button>
+          <button type="button" role="menuitemradio" class="sw gn" data-skin-act="green" aria-checked="true" title="清新綠">清新綠</button>
+          <button type="button" role="menuitemradio" class="sw pk" data-skin-act="pink" aria-checked="false" title="千禧粉">千禧粉</button>
         </div>
         <div class="dsep"></div>
         <div class="grp">明暗</div>
