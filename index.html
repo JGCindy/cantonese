@@ -23062,28 +23062,20 @@ function wbSmartGo(sel){
   var off=wbNavOffset();
   wbFlash(el);
 
-  /* 主路徑：原生 scrollIntoView。它由瀏覽器自己決定滾哪一層容器，
-     iframe / 外層滾動 / 頁面縮放 等情況都能正確處理。 */
-  try{
-    el.scrollIntoView({behavior:'smooth', block:'start', inline:'nearest'});
-  }catch(e){
-    try{ el.scrollIntoView(true); }catch(e2){}
+  /* 核心策略：瞬時跳轉 + 多次回釘。
+     不用 smooth 動畫——長距離平滑滾動在 iframe/宿主環境下會被重排、
+     鎖定解除、宿主介入打斷，落點飄到目標區塊末尾（視頻中已復現）。
+     瞬時 scrollTo 用的是「點擊當下」的文檔絕對座標，沒有動畫就沒有中途打斷；
+     之後在 80/300/800/1600ms 各回釘一次，吸收圖片載入、摺疊展開造成的版面漂移。 */
+  function jump(){
+    var y=Math.max(0, el.getBoundingClientRect().top+(window.scrollY||window.pageYOffset||0)-off);
+    try{ window.scrollTo(0, y); }catch(e){ document.documentElement.scrollTop=y; }
   }
-
-  /* 校正迴圈：scrollIntoView 不認識 sticky 導航高度，落定後把多滾的那段補回來；
-     同時應對圖片載入 / 摺疊展開造成的版面漂移。 */
-  var tries=0, raf=null;
-  function correct(){
-    raf=setTimeout(function(){
-      var top=el.getBoundingClientRect().top;
-      var delta=top-off;                       /* >0 表示目標在導航下方太遠，需再往下滾 */
-      if(Math.abs(delta)>8 && !wbAligned(el,off)){
-        try{ window.scrollBy({top:delta, behavior:'smooth'}); }catch(e){ window.scrollBy(0,delta); }
-      }
-      if(++tries<6) correct();
-    },420);
-  }
-  correct();
+  jump();
+  setTimeout(jump,80);
+  setTimeout(jump,300);
+  setTimeout(jump,800);
+  setTimeout(jump,1600);
 
   /* 記錄目前定位，供 hash 同步與返回時使用 */
   try{
@@ -23105,8 +23097,28 @@ function scrollSpy2(){
   var pctEl=document.getElementById('tocProgPct');
 
   function on(){
-    var y=window.scrollY+150, idx=-1;
-    secs.forEach(function(s,i){ if(s&&s.offsetTop<=y) idx=i; });
+    /* 與頂部導航同一套規則：pad=導航高度+24；取「視口線上方最近的區塊」 */
+    var nv=document.querySelector('nav.sticky');
+    var pad=(nv&&nv.offsetHeight?nv.offsetHeight:0)+24;
+    var y=window.scrollY+pad, idx=-1, bestTop=-Infinity;
+    /* 注意：不能用 offsetTop——它是相對定位祖先的座標，嵌套容器裡會錯位；
+       必須用 getBoundingClientRect().top + scrollY 換算成文檔絕對座標 */
+    secs.forEach(function(s,i){
+      if(!s) return;
+      var t=s.getBoundingClientRect().top+window.scrollY;
+      if(t<=y && t>bestTop){ bestTop=t; idx=i; }
+    });
+    var se2=document.scrollingElement||document.documentElement;
+    if(se2 && se2.scrollHeight-se2.clientHeight-window.scrollY<8){
+      var bi=-1, bd=Infinity;
+      secs.forEach(function(s,i){
+        if(!s) return;
+        var t=s.getBoundingClientRect().top+window.scrollY;
+        if(t>bestTop){ var d=Math.abs(t-y); if(d<bd){ bd=d; bi=i; } }
+      });
+      if(bi>=0) idx=bi;
+      else idx=secs.length-1;
+    }
     links.forEach(function(a,i){
       var on2=(i===idx);
       a.classList.toggle('active',on2);
@@ -23209,8 +23221,32 @@ function scrollSpy(){
     wbSmartGo(a.getAttribute('href'));
   });
   function on(){
-    var y=window.scrollY+140,idx=-1;
-    secs.forEach(function(s,i){ if(s&&s.offsetTop<=y) idx=i; });
+    /* 閾值必須 ≥ 跳轉落點（nav 高度+16），否則剛跳到的區塊永遠點不亮，
+       高亮會停留在上一節——視頻中「高亮與實際位置不符」正是這個原因。
+       取「視口線上方最近的區塊」而非「最後一個越線者」：
+       導航順序與文檔順序不同（如 複習計畫/練習台 排在尾但位於文檔中段），
+       取最後者會錯點到別的節。 */
+    var nv=document.querySelector('nav.sticky');
+    var pad=(nv&&nv.offsetHeight?nv.offsetHeight:0)+24;
+    var y=window.scrollY+pad,idx=-1,bestTop=-Infinity;
+    secs.forEach(function(s,i){
+      if(!s) return;
+      var t=s.getBoundingClientRect().top+window.scrollY;
+      if(t<=y && t>bestTop){ bestTop=t; idx=i; }
+    });
+    /* 滾到底部時：取「離視口線最近且尚未越線」的那一節（通常是最後一節，
+       如 #res），否則會停留在文檔中段、座標更靠上的節點 */
+    var se=document.scrollingElement||document.documentElement;
+    if(se && se.scrollHeight-se.clientHeight-window.scrollY<8){
+      var bi=-1, bd=Infinity;
+      secs.forEach(function(s,i){
+        if(!s) return;
+        var t=s.getBoundingClientRect().top+window.scrollY;
+        if(t>bestTop){ var d=Math.abs(t-y); if(d<bd){ bd=d; bi=i; } }
+      });
+      if(bi>=0) idx=bi;
+      else idx=secs.length-1;
+    }
     links.forEach(function(a,i){ a.classList.toggle('active',i===idx); });
   }
   window.addEventListener('scroll',on,{passive:true}); on();
