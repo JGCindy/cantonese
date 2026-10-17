@@ -627,7 +627,74 @@ section.lesson{margin:56px 0;scroll-margin-top:78px}
 .asr-heard .ok{color:var(--mint-2);font-weight:800;background:var(--mint-soft);border-radius:4px;padding:0 2px}
 .asr-heard .miss{color:var(--danger-ink,#c0402d);font-weight:800;background:var(--coral-soft);border-radius:4px;padding:0 2px}
 .asr-foot{font-size:11.5px;line-height:1.6;color:var(--ink-3);margin-top:8px}
+
+/* ==================== 跟讀練習台（通用） ==================== */
+.lab{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:20px 20px 18px;box-shadow:var(--shadow)}
+/* 內容來源分類 */
+.lab-src{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px}
+.lab-src button{padding:7px 13px;border-radius:999px;border:1.5px solid var(--line-2);background:var(--surface);
+  font-family:inherit;font-size:12.5px;font-weight:800;color:var(--ink-3);cursor:pointer;transition:.15s;display:inline-flex;align-items:center;gap:5px}
+.lab-src button:hover{border-color:var(--mint);color:var(--mint-ink)}
+.lab-src button.on{background:var(--mint-soft);border-color:var(--mint);color:var(--mint-ink)}
+.lab-src button .cnt{font-size:10.5px;opacity:.62;font-weight:800}
+/* 子分類 / 範圍 */
+.lab-sub{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;padding-top:2px}
+.lab-sub button{padding:5px 11px;border-radius:8px;border:1px solid var(--line);background:var(--surface-2);
+  font-family:inherit;font-size:12px;font-weight:700;color:var(--ink-3);cursor:pointer;transition:.15s}
+.lab-sub button:hover{color:var(--ink);border-color:var(--line-2)}
+.lab-sub button.on{background:var(--sky-soft);border-color:var(--sky);color:var(--info-ink)}
+.lab-sub .mini-info{font-size:11.5px;color:var(--ink-3);font-weight:700;align-self:center;margin-left:auto}
+
+/* 計分條 */
+.lab-hud{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:10px 13px;border-radius:12px;
+  background:var(--surface-2);border:1px solid var(--line);margin-bottom:14px;font-size:12.5px;font-weight:800;color:var(--ink-3)}
+.lab-hud .it{display:inline-flex;align-items:center;gap:5px}
+.lab-hud .it b{font-size:15px;color:var(--ink);letter-spacing:.2px}
+.lab-hud .it b.good{color:var(--mint-2)}
+.lab-hud .it b.mid{color:#b4762a}
+.lab-hud .it b.bad{color:var(--danger-ink,#c0402d)}
+.lab-hud .sp{margin-left:auto;display:flex;gap:7px;flex-wrap:wrap}
+.lab-hud .sp button{padding:6px 12px;border-radius:9px;border:1.5px solid var(--line-2);background:var(--surface);
+  font-family:inherit;font-size:12px;font-weight:800;color:var(--ink-2);cursor:pointer;transition:.15s}
+.lab-hud .sp button:hover{border-color:var(--mint);color:var(--mint-ink)}
+
+/* 練習卡 */
+.lab-card{border:1px solid var(--line);border-radius:14px;background:var(--surface);padding:24px 22px;text-align:center;position:relative}
+.lab-card .tag{position:absolute;top:12px;left:14px;font-size:10.5px;font-weight:800;letter-spacing:.5px;
+  color:var(--ink-3);background:var(--bg-3);padding:3px 9px;border-radius:6px}
+.lab-card .idx{position:absolute;top:12px;right:14px;font-size:11px;font-weight:800;color:var(--ink-3)}
+.lab-yue{font-size:clamp(26px,4.6vw,40px);font-weight:800;letter-spacing:3px;line-height:1.4;margin:14px 0 8px;
+  font-family:"Noto Serif HK","Source Han Serif TC","PingFang HK","Microsoft JhengHei",serif}
+.lab-jp{font-size:14.5px;font-weight:700;color:var(--mint-2);letter-spacing:.6px;margin-bottom:6px;line-height:1.7}
+.lab-cn{font-size:13px;color:var(--ink-3);line-height:1.7}
+.lab-mask .lab-yue{filter:blur(9px);user-select:none;transition:filter .2s}
+.lab-tools{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:18px}
+.lab-tools button{display:inline-flex;align-items:center;gap:6px;padding:9px 15px;border-radius:10px;
+  border:1.5px solid var(--line-2);background:var(--surface);color:var(--ink-2);
+  font-family:inherit;font-size:13px;font-weight:800;cursor:pointer;transition:.15s}
+.lab-tools button:hover{border-color:var(--sky);color:var(--sky)}
+.lab-tools button.on{background:var(--sky-soft);border-color:var(--sky);color:var(--info-ink)}
+.lab-tools button.main{border-color:var(--mint);background:var(--mint);color:var(--on-accent)}
+.lab-tools button.main:hover{filter:brightness(1.06);color:var(--on-accent)}
+
+/* 練習台的錄音區（重用 .rec-* 的骨架，但獨立一套 id） */
+.lab .rec-box{margin-top:16px;margin-bottom:0}
+.lab-rate{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12px;font-weight:800;color:var(--ink-3);margin-bottom:11px}
+.lab-rate input[type=range]{flex:1;min-width:110px;max-width:190px;accent-color:var(--mint)}
+.lab-empty{padding:30px 16px;text-align:center;color:var(--ink-3);font-size:13px;line-height:1.8}
+
+/* 練習台切換開關 */
+.lab-switch{display:inline-flex;background:var(--bg-3);border-radius:11px;padding:4px;gap:4px;margin-bottom:16px}
+.lab-switch button{border:none;background:transparent;padding:8px 18px;border-radius:8px;font-family:inherit;
+  font-size:13px;font-weight:800;color:var(--ink-3);cursor:pointer;transition:.15s}
+.lab-switch button.on{background:var(--surface);color:var(--mint-ink);box-shadow:0 2px 8px rgba(16,60,50,.10)}
+
 @media (max-width:640px){
+  .lab{padding:16px 14px 14px;border-radius:14px}
+  .lab-yue{letter-spacing:2px}
+  .lab-card{padding:20px 14px}
+  .lab-hud .sp{margin-left:0;width:100%}
+}
   .fc-yue{font-size:24px}.focus-card{padding:18px 16px 20px;border-radius:18px}
   .fc-tools button{padding:9px 12px;font-size:13px}
 }
@@ -1447,6 +1514,7 @@ body.dock-lift .dock-stack{transform:translateY(calc(-1 * var(--dock-h,68px)))}
     <a href="#songs"><i class="nn">7</i>粵語歌</a>
     <a href="#errors"><i class="nn">!</i>錯誤對照</a>
     <a href="#spaced"><i class="nn">↻</i>複習計畫</a>
+    <a href="#lab"><i class="nn">★</i>練習台</a>
     <a href="#test"><i class="nn">8</i>自測訓練</a>
     <a href="#dict"><i class="nn">9</i>真人詞庫</a>
     <a href="#res"><i class="nn">10</i>資源</a>
@@ -2170,6 +2238,100 @@ body.dock-lift .dock-stack{transform:translateY(calc(-1 * var(--dock-h,68px)))}
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--mint-2)" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v5h1"/></svg>
         <span><b>最容易被忽略的一點：複習量要小於學習量。</b>每天學 15 個新詞 + 複習 30 個舊詞，比學 50 個新詞不複習有效得多。
         練習台也照這個原則設計：新卡一天最多進 12 張，剩下的排到明天。</span>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div class="wrap" id="lab">
+  <section class="lesson">
+    <div class="sec-head">
+      <div class="sec-num">★</div>
+      <h2>跟讀練習台：選內容 → 聽 → 錄 → 評分</h2>
+      <span class="tagline">全站資料都能拿來練</span>
+    </div>
+    <p class="sec-intro">
+      前面每一節都是在「看」和「聽」，這裡是唯一要求你<b>開口</b>的地方。
+      選一類內容（詞彙、常用句、口語字、句型、聲調對立對、朗讀段落，甚至 15,175 條真人詞庫裡的任意詞），
+      點示範聽一遍，然後錄自己 —— 系統同時給兩種回饋：
+      <b>音高曲線</b>（看聲調對不對）和<b>語音轉寫評分</b>（看有沒有念成別的字）。
+    </p>
+
+    <div class="notice">
+      <b>兩種回饋各管一半，缺一不可：</b>曲線管「聲調」，轉寫管「字音」。粵語裡聲調本身就是意義
+      （si1 詩 / si2 史 / si3 試 / si4 時 / si5 市 / si6 事），<b>念對了字但聲調錯了，當地人一樣聽不懂</b>。
+      所以轉寫給你 100% 也別高興太早，往下看曲線。
+    </div>
+
+    <div class="lab" id="labBox">
+      <!-- 內容來源 -->
+      <div class="lab-src" id="labSrc"></div>
+      <div class="lab-sub" id="labSub"></div>
+
+      <!-- 計分 -->
+      <div class="lab-hud" id="labHud">
+        <span class="it">本輪 <b id="labRound">0</b></span>
+        <span class="it">平均 <b id="labAvg">—</b></span>
+        <span class="it">最高 <b id="labBest">—</b></span>
+        <span class="sp">
+          <button type="button" id="labShuffle">⇄ 換一題</button>
+          <button type="button" id="labResetStat">清除成績</button>
+        </span>
+      </div>
+
+      <!-- 練習卡 -->
+      <div class="lab-card" id="labCard">
+        <span class="tag" id="labTag">詞彙</span>
+        <span class="idx" id="labIdx">1 / 1</span>
+        <div class="lab-yue" id="labYue">—</div>
+        <div class="lab-jp" id="labJp"></div>
+        <div class="lab-cn" id="labCn"></div>
+        <div class="lab-tools">
+          <button type="button" class="main" id="labPlay">▶ 聽示範</button>
+          <button type="button" id="labSlow">◐ 慢速</button>
+          <button type="button" id="labMask">◍ 遮住</button>
+          <button type="button" id="labNext">下一題 ›</button>
+        </div>
+      </div>
+
+      <!-- 錄音 -->
+      <div class="rec-box">
+        <div class="rec-head">
+          <span class="t">錄音跟讀</span>
+          <span class="st" id="labRecStatus">未錄音</span>
+        </div>
+        <div class="lab-rate">
+          <span>示範速度</span>
+          <input type="range" id="labRate" min="0.5" max="1.3" step="0.1" value="0.8">
+          <span id="labRateVal">0.8×</span>
+        </div>
+        <div class="rec-btns">
+          <button type="button" class="rec" id="labRecStart">● 開始錄音</button>
+          <button type="button" id="labRecStop" disabled>■ 停止</button>
+          <button type="button" id="labRecPlay" disabled>▶ 聽我的</button>
+          <button type="button" id="labRecAB" disabled>⇄ 示範／我的</button>
+        </div>
+        <div class="rec-wave" id="labRecWave"><canvas id="labRecCanvas" width="600" height="46"></canvas></div>
+        <div class="pt-wrap" id="labPtWrap">
+          <div class="pt-head">
+            <span>音高曲線（相對高度，越低越低沉）</span>
+            <span class="lg"><i style="background:#888780"></i>示範</span>
+            <span class="lg"><i style="background:#2fc4a0"></i>你</span>
+          </div>
+          <svg class="pt-svg" id="labPtSvg" viewBox="0 0 560 150" preserveAspectRatio="none"></svg>
+          <div class="pt-verdict" id="labPtVerdict">錄一段話，這裡會畫出你的音高輪廓，和示範並排對比。</div>
+        </div>
+        <div class="asr-wrap" id="labAsrWrap">
+          <div class="asr-head">
+            <span>語音轉寫（Web Speech API · zh-HK）</span>
+            <span class="big" id="labAsrScore">—</span>
+          </div>
+          <div class="asr-heard" id="labAsrHeard"><span class="ph">錄音時會同時做語音識別，這裡顯示瀏覽器「聽成了什麼字」。</span></div>
+          <div class="asr-foot" id="labAsrFoot">
+            只做事後文字比對：<b>講對字</b>才得分，<b>聲調錯了照樣得滿分</b>。所以請以曲線為準。
+          </div>
+        </div>
+        <div class="rec-note warn" id="labRecNote" style="display:none"></div>
       </div>
     </div>
   </section>
@@ -3157,6 +3319,722 @@ function asrFinish(){
 function escHtml(s){
   return String(s).replace(/[&<>"']/g,function(c){
     return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+  });
+}
+
+/* ==================== 跟讀練習台：內容來源 ====================
+   目標：全站任何有「粵文＋粵拼」的地方，都能丟進同一套「聽→錄→雙回饋」流程。
+   每個 source 提供：
+     name   分類名（顯示在按鈕上）
+     subs   子分類（大字/小字、場景/主題、級別…），沒有就給 [{k:'all',name:'全部'}]
+     sizes  每個子分類的題目數（buttons 上顯示，讓使用者知道這裡有多少可練）
+     build(sub)  回傳題目陣列，每題 {yue, jp, cn, tag}
+   題目一律「現算」而不是開頁就全部展開——詞庫有 15,175 條，
+   全部轉成練習卡會讓瀏覽器卡死，所以只在選中那個子分類時才 build。 */
+var LAB={src:'vocab',sub:'all',list:[],idx:0,rate:0.8,mask:false,
+         stat:{n:0,sum:0,best:0},key:'cantonese_lab_v1',
+         // 錄音狀態（獨立於專注練一句，避免共用 id）
+         stream:null,mr:null,chunks:[],blob:null,url:null,
+         recSeriesRaw:[],recScaled:null,demoScaled:null,raf:0,analyser:null,t0:0,
+         asr:{on:false,rec:null,transcript:'',err:''}};
+
+/* 中文數字轉阿拉伯數字（詞庫的詞頻欄位是「第幾聲」用的編號，這裡只處理單純的數字） */
+function labIsHan(s){ return /[\u3400-\u9fff]/.test(String(s||'')); }
+
+/* 從一個「粵拼字串」抽出聲調數字序列，畫理論輪廓用 */
+function labTones(jp){
+  return (String(jp||'').match(/[1-6]/g)||[]).map(Number);
+}
+
+var LAB_SOURCES=[
+  /* 1. 主題詞彙庫 */
+  { id:'vocab', name:'詞彙', icon:'詞',
+    subs:function(){ return VOCAB.map(function(g,i){ return {k:String(i),name:g.group}; }); },
+    sizes:function(){ return VOCAB.map(function(g){ return g.items.length; }); },
+    build:function(k){
+      var g=VOCAB[+k]; if(!g) return [];
+      return g.items.map(function(it){
+        return {yue:it[0],jp:it[1],cn:it[2],tag:g.group};
+      });
+    }
+  },
+  /* 2. 口語字（20 個粵語特有字） */
+  { id:'coll', name:'口語字', icon:'字',
+    subs:function(){ return [{k:'all',name:'20 個粵語口語字'}]; },
+    sizes:function(){ return [COLLOQUIAL.length]; },
+    build:function(){
+      return COLLOQUIAL.map(function(x){
+        return {yue:x.ex,jp:x.exjp,cn:x.exCn,tag:x.z+' '+x.mean};
+      });
+    }
+  },
+  /* 3. 語氣詞（16 個，用它的例句練） */
+  { id:'part', name:'語氣詞', icon:'語',
+    subs:function(){ return [{k:'all',name:'16 個句末語氣詞'}]; },
+    sizes:function(){ return [PARTICLES.length]; },
+    build:function(){
+      return PARTICLES.map(function(x){
+        // PARTICLES 只有單字粵拼（x.jp），沒有整句粵拼。
+        // 所以這裡把例句當「短語」練：粵拼欄只顯示語氣詞本身的讀音，並在標籤裡說清楚。
+        // 曲線因此畫不出整句走勢 → 標記 noCurve，讓練習台不強行畫錯的輪廓。
+        return {yue:x.eg,jp:'',cn:x.egCn,tag:x.z+'（'+x.jp+'）'+x.fn,noCurve:true,hintJp:x.z+' = '+x.jp};
+      });
+    }
+  },
+  /* 4. 句型模板 */
+  { id:'pat', name:'句型', icon:'型',
+    subs:function(){ return PATTERNS.map(function(p,i){ return {k:String(i),name:p.t}; }); },
+    sizes:function(){ return PATTERNS.map(function(p){ return p.li.length; }); },
+    build:function(k){
+      var p=PATTERNS[+k]; if(!p) return [];
+      return p.li.map(function(l){
+        return {yue:l[0],jp:l[1],cn:l[2],tag:p.tpl};
+      });
+    }
+  },
+  /* 5. 聲調最小對立對（練聲調最有效的一類） */
+  { id:'pair', name:'聲調對立對', icon:'調',
+    subs:function(){ return [{k:'all',name:'12 組最容易聽混的'} , {k:'tone',name:'只練聲調（前 5 組）'}]; },
+    sizes:function(){ return [TONE_PAIRS.length*2, 5*2]; },
+    build:function(k){
+      var arr=(k==='tone')?TONE_PAIRS.slice(0,5):TONE_PAIRS;
+      var out=[];
+      arr.forEach(function(p){
+        [p.a,p.b].forEach(function(x){
+          out.push({yue:x[0],jp:x[1],cn:'',tag:x[2],why:p.why});
+        });
+      });
+      return out;
+    }
+  },
+  /* 6. 朗讀段落（成段練習，句子較長） */
+  { id:'read', name:'朗讀段落', icon:'段',
+    subs:function(){ return READ_TEXTS.map(function(t,i){ return {k:String(i),name:'LV'+t.lv+'　'+t.title}; }); },
+    sizes:function(){ return READ_TEXTS.map(function(t){ return t.lines.length; }); },
+    build:function(k){
+      var t=READ_TEXTS[+k]; if(!t) return [];
+      return t.lines.map(function(l){
+        return {yue:l[0],jp:l[1],cn:l[2],tag:t.title};
+      });
+    }
+  },
+  /* 7. 真人詞庫（15,175 條，按首字範圍分組，避免一次建出上萬張卡） */
+  { id:'dict', name:'真人詞庫', icon:'庫',
+    subs:function(){
+      return [{k:'one',name:'單字'},{k:'two',name:'雙字詞'},{k:'three',name:'三字及以上'},
+              {k:'entry',name:'含入聲 -p/-t/-k'},{k:'all',name:'全部'}];
+    },
+    sizes:function(){
+      if(!DICT.length) return [0,0,0,0,0];
+      return [
+        DICT.filter(function(e){return e.len===1}).length,
+        DICT.filter(function(e){return e.len===2}).length,
+        DICT.filter(function(e){return e.len>=3}).length,
+        DICT.filter(function(e){return isEntry(e.j)}).length,
+        DICT.length
+      ];
+    },
+    build:function(k){
+      if(!DICT.length) return [];
+      var pool=DICT;
+      if(k==='one') pool=DICT.filter(function(e){return e.len===1});
+      else if(k==='two') pool=DICT.filter(function(e){return e.len===2});
+      else if(k==='three') pool=DICT.filter(function(e){return e.len>=3});
+      else if(k==='entry') pool=DICT.filter(function(e){return isEntry(e.j)});
+      // 詞庫太大，只抽 200 條進練習隊列（每輪「換一題」會再抽）
+      pool=labShuffle(pool).slice(0,200);
+      return pool.map(function(e){
+        return {yue:e.w,jp:e.j,cn:e.m||'',tag:(e.s==='l'?'朗文':'粵典')+' · '+(e.p||''), entry:e};
+      });
+    }
+  }
+];
+
+function labSource(id){
+  for(var i=0;i<LAB_SOURCES.length;i++) if(LAB_SOURCES[i].id===id) return LAB_SOURCES[i];
+  return LAB_SOURCES[0];
+}
+function labShuffle(a){
+  var b=a.slice();
+  for(var i=b.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=b[i]; b[i]=b[j]; b[j]=t; }
+  return b;
+}
+
+/* ==================== 練習台：渲染 ==================== */
+function labPaintSrc(){
+  var host=document.getElementById('labSrc'); if(!host) return;
+  host.innerHTML=LAB_SOURCES.map(function(s){
+    var n=0;
+    try{ var sz=s.sizes(); for(var i=0;i<sz.length;i++) n+=sz[i]; }catch(e){ n=0; }
+    return '<button type="button" data-lab-src="'+s.id+'"'+(LAB.src===s.id?' class="on"':'')+'>'+
+      '<span>'+s.name+'</span><span class="cnt">'+n+'</span></button>';
+  }).join('');
+}
+function labPaintSub(){
+  var host=document.getElementById('labSub'); if(!host) return;
+  var s=labSource(LAB.src);
+  var subs=[],sizes=[];
+  try{ subs=s.subs()||[]; sizes=s.sizes()||[]; }catch(e){ subs=[]; }
+  if(!subs.length){ host.innerHTML=''; return; }
+  host.innerHTML=subs.map(function(x,i){
+    var cnt=sizes[i];
+    return '<button type="button" data-lab-sub="'+x.k+'"'+(LAB.sub===x.k?' class="on"':'')+'>'+
+      x.name+(typeof cnt==='number'?' <span style="opacity:.6">'+cnt+'</span>':'')+'</button>';
+  }).join('')+'<span class="mini-info">共 '+(LAB.list.length||0)+' 題可練</span>';
+}
+function labLoad(){
+  var s=labSource(LAB.src);
+  var subs=[];
+  try{ subs=s.subs()||[]; }catch(e){ subs=[]; }
+  if(!subs.length){ LAB.list=[]; return; }
+  var ok=false;
+  for(var i=0;i<subs.length;i++) if(subs[i].k===LAB.sub) ok=true;
+  if(!ok) LAB.sub=subs[0].k;
+  try{ LAB.list=s.build(LAB.sub)||[]; }catch(e){ LAB.list=[]; }
+  LAB.idx=0;
+  if(LAB.list.length>1) LAB.list=labShuffle(LAB.list);
+}
+function labCur(){ return LAB.list[LAB.idx]||null; }
+function labPaintCard(){
+  var it=labCur();
+  var yue=document.getElementById('labYue'),
+      jp=document.getElementById('labJp'),
+      cn=document.getElementById('labCn'),
+      tag=document.getElementById('labTag'),
+      idx=document.getElementById('labIdx'),
+      card=document.getElementById('labCard');
+  if(!it){
+    if(yue) yue.textContent='—';
+    if(jp) jp.textContent='';
+    if(cn) cn.textContent='這一類目前沒有題目。試試換一個分類。';
+    if(tag) tag.textContent=labSource(LAB.src).name;
+    if(idx) idx.textContent='0 / 0';
+    return;
+  }
+  if(yue) yue.textContent=it.yue;
+  if(jp) jp.textContent=it.jp||'';
+  if(cn) cn.textContent=it.cn||'';
+  if(tag) tag.textContent=it.tag||labSource(LAB.src).name;
+  if(idx) idx.textContent=(LAB.idx+1)+' / '+LAB.list.length;
+  if(card) card.classList.toggle('lab-mask',!!LAB.mask);
+  var mb=document.getElementById('labMask');
+  if(mb){ mb.classList.toggle('on',!!LAB.mask); mb.textContent=LAB.mask?'◍ 已遮住':'◍ 遮住'; }
+}
+function labPaintStat(){
+  var n=LAB.stat.n||0, avg=n?Math.round(LAB.stat.sum/n):null, best=LAB.stat.best||0;
+  var r=document.getElementById('labRound'), a=document.getElementById('labAvg'), b=document.getElementById('labBest');
+  if(r) r.textContent=n;
+  if(a){ a.textContent=(avg===null?'—':avg+'%'); a.className=avg===null?'':(avg>=80?'good':(avg>=50?'mid':'bad')); }
+  if(b){ b.textContent=(best?best+'%':'—'); b.className=best?(best>=80?'good':(best>=50?'mid':'bad')):''; }
+}
+function labStatus(txt,kind){
+  var el=document.getElementById('labRecStatus');
+  if(!el) return;
+  el.textContent=txt; el.className='st'+(kind?' '+kind:'');
+}
+function labNote(msg){
+  var n=document.getElementById('labRecNote');
+  if(!n) return;
+  if(!msg){ n.style.display='none'; n.textContent=''; return; }
+  n.style.display='block'; n.textContent=msg;
+}
+
+/* ==================== 練習台：示範播放 ==================== */
+function labDemoProfile(){
+  var it=labCur(); if(!it){ LAB.demoScaled=null; return; }
+  // 沒有整句粵拼的題目（例如語氣詞例句）不畫示範曲線——
+  // 硬畫只會給出錯的輪廓，比不畫更糟
+  if(it.noCurve){ LAB.demoScaled=null; return; }
+  var tones=labTones(it.jp);
+  if(!tones.length){ LAB.demoScaled=null; return; }
+  var prof={'1':[0.95,0.90],'2':[0.45,0.95],'3':[0.55,0.55],
+            '4':[0.35,0.10],'5':[0.10,0.55],'6':[0.30,0.28]};
+  var pts=[], dashes=[];
+  // 逐音節取調值；入聲（-p/-t/-k）標成短促段，畫虛線
+  var syls=String(it.jp||'').split(/[\s,，]+/).filter(Boolean);
+  syls.forEach(function(sy){
+    var m=sy.match(/[1-6]/);
+    if(!m) return;
+    var p=prof[m[0]]||[0.5,0.5];
+    pts.push(p[0]); pts.push(p[1]);
+    dashes.push(/[ptk][1-6]$/.test(sy));
+  });
+  if(!pts.length){ LAB.demoScaled=null; return; }
+  LAB.demoScaled={pts:pts,theory:true,entry:dashes};
+}
+function labSpeak(slow){
+  var it=labCur(); if(!it||!it.yue) return;
+  if(!('speechSynthesis' in window)){ labNote('這個瀏覽器沒有語音合成，聽不到示範。'); return; }
+  labNote('');
+  var synth=window.speechSynthesis;
+  try{ synth.cancel(); }catch(e){}
+  var u=makeUtter(String(it.yue),VOL.v);
+  var base=slow?0.55:LAB.rate;
+  u.rate=Math.min(2,base*((typeof RATE!=='undefined'&&RATE.v)?RATE.v:1));
+  synth.speak(u);
+}
+
+/* ==================== 練習台：切換題目 ==================== */
+function labGo(step){
+  if(!LAB.list.length) return;
+  LAB.idx=(LAB.idx+step+LAB.list.length)%LAB.list.length;
+  labResetRec();
+  labPaintCard();
+  if(step) labPaintDemo();
+}
+function labShuffleOne(){
+  if(!LAB.list.length) return;
+  if(LAB.list.length>1){
+    var old=LAB.idx, j=old;
+    for(var k=0;k<8&&j===old;k++) j=Math.floor(Math.random()*LAB.list.length);
+    LAB.idx=j;
+  }
+  labResetRec();
+  labPaintCard();
+  labPaintDemo();
+}
+
+/* ==================== 練習台：錄音 ==================== */
+function labResetRec(){
+  try{ labRecStop(); }catch(e){}
+  LAB.recScaled=null; LAB.recSeriesRaw=[]; LAB.demoScaled=null;
+  if(LAB.url){ try{ URL.revokeObjectURL(LAB.url); }catch(e){} LAB.url=null; }
+  var pw=document.getElementById('labPtWrap'); if(pw) pw.classList.remove('on');
+  var rw=document.getElementById('labRecWave'); if(rw) rw.classList.remove('on');
+  ['labRecPlay','labRecAB'].forEach(function(id){ var b=document.getElementById(id); if(b) b.disabled=true; });
+  var vd=document.getElementById('labPtVerdict');
+  if(vd) vd.textContent='錄一段話，這裡會畫出你的音高輪廓，和示範並排對比。';
+  labAsrReset();
+  labStatus('未錄音');
+}
+function labPaintDemo(){
+  labDemoProfile();
+  var svg=document.getElementById('labPtSvg');
+  var wrap=document.getElementById('labPtWrap');
+  var it=labCur();
+  if(!svg||!wrap) return;
+  var hasDemo=!!(LAB.demoScaled&&LAB.demoScaled.pts&&LAB.demoScaled.pts.length);
+  var hasRec=!!(LAB.recScaled&&LAB.recScaled.length);
+  // 示範曲線畫不出來（缺粵拼）時，仍然顯示面板——錄完還能看自己的曲線
+  if(!hasDemo&&!hasRec){
+    // 面板先收起，但判語必須刷新，否則會留著上一題的文字
+    wrap.classList.remove('on');
+    var vd0=document.getElementById('labPtVerdict');
+    if(vd0){
+      if(it&&it.noCurve){
+        vd0.innerHTML='這題沒有整句粵拼（'+(it.hintJp?escHtml(it.hintJp):'這一句的粵拼資料不完整')+'），所以沒有示範曲線。'+
+          '<br><span style="font-weight:700;color:var(--ink-3);font-size:12px">錄音、回放、轉寫評分都正常可用；要練聲調曲線請選「詞彙 / 聲調對立對 / 朗讀段落」。</span>';
+      }else{
+        vd0.textContent='這一題沒有可用的粵拼，畫不出示範曲線。';
+      }
+    }
+    return;
+  }
+  wrap.classList.add('on');
+  labPaintPitch();
+}
+
+var LAB_TONE_Y=function(v){ return (128-v*118).toFixed(1); };
+function labPaintPitch(){
+  var svg=document.getElementById('labPtSvg'); if(!svg) return;
+  var it=labCur();
+  var W=560,H=150;
+  var g='';
+  // 背景格線（六條水平線對應 1–5 度）
+  for(var k=0;k<=5;k++){
+    var y=LAB_TONE_Y(k/5);
+    g+='<line x1="0" y1="'+y+'" x2="'+W+'" y2="'+y+'" stroke="var(--line)" stroke-width="1" opacity="'+(k===0||k===5?'.55':'.3')+'"/>';
+  }
+  function xy(i,n,v){ return [((i/(n-1||1))*(W-30)+15).toFixed(1), LAB_TONE_Y(v)]; }
+  // 示範：逐段畫，入聲段用虛線
+  if(LAB.demoScaled&&LAB.demoScaled.pts&&LAB.demoScaled.pts.length){
+    var d=LAB.demoScaled.pts, dn=LAB.demoScaled.entry||[];
+    var segs=Math.floor(d.length/2);
+    for(var s=0;s<segs;s++){
+      var i1=s*2, i2=Math.min(d.length-1,s*2+1);
+      var a=xy(i1,d.length,d[i1]), b=xy(i2,d.length,d[i2]);
+      g+='<line x1="'+a[0]+'" y1="'+a[1]+'" x2="'+b[0]+'" y2="'+b[1]+'" stroke="#888780" stroke-width="3" stroke-linecap="round"'+
+         (dn[s]?' stroke-dasharray="5 4"':'')+'/>';
+    }
+    // 段與段之間連起來，讓它看起來是一條連續線
+    for(var s2=0;s2<segs-1;s2++){
+      var p1=xy(s2*2+1,d.length,d[s2*2+1]), p2=xy((s2+1)*2,d.length,d[(s2+1)*2]);
+      g+='<line x1="'+p1[0]+'" y1="'+p1[1]+'" x2="'+p2[0]+'" y2="'+p2[1]+'" stroke="#888780" stroke-width="2.4" opacity=".55"/>';
+    }
+  }
+  // 你的（綠）
+  if(LAB.recScaled&&LAB.recScaled.length){
+    var r=LAB.recScaled, path='';
+    for(var i=0;i<r.length;i++){
+      var p=xy(i,r.length,r[i]);
+      path+=(i?'L':'M')+p[0]+' '+p[1];
+    }
+    g+='<path d="'+path+'" fill="none" stroke="#2fc4a0" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>';
+  }
+  svg.innerHTML=g;
+  // 文字判語
+  var vd=document.getElementById('labPtVerdict');
+  if(!vd) return;
+  if(!(LAB.recScaled&&LAB.recScaled.length)){
+    if(it&&it.noCurve){
+      vd.innerHTML='這題沒有整句粵拼（'+(it.hintJp?escHtml(it.hintJp):'語氣詞本身才有讀音')+'），所以畫不出示範曲線。'+
+        '<br><span style="font-weight:700;color:var(--ink-3);font-size:12px">錄音、回放、轉寫評分都正常可用；要練聲調曲線請選「詞彙 / 聲調對立對 / 朗讀段落」。</span>';
+      return;
+    }
+    vd.innerHTML='<b>示範聲調：</b>'+(labTones(it&&it.jp).join(' → ')||'—')+'（數字 1–6，越大越高，虛線是入聲短促調）。錄一段話看看你的走勢。';
+    return;
+  }
+  var msg=labCompareShape();
+  vd.innerHTML=msg;
+}
+/* 用「示範輪廓 vs 實測輪廓」做一次粗略的形狀比對，給一句人話結論 */
+function labCompareShape(){
+  var it=labCur();
+  var tones=labTones(it&&it.jp);
+  if(!tones.length) return '示範句沒有標聲調，只畫你的曲線。';
+  var d=LAB.demoScaled&&LAB.demoScaled.pts;
+  var r=LAB.recScaled;
+  if(!d||!r||!r.length) return '';
+  // 兩條都重採樣成同樣點數，算平均絕對差（0–1）
+  var n=24, N=function(a){
+    var out=[],step=(a.length-1)/Math.max(1,n-1);
+    for(var i=0;i<n;i++) out.push(a[Math.min(a.length-1,Math.round(i*step))]);
+    return out;
+  };
+  var A=N(d), B=N(r), diff=0;
+  for(var i=0;i<n;i++) diff+=Math.abs(A[i]-B[i]);
+  diff/=n;
+  var pct=Math.max(0,Math.min(100,Math.round((1-diff*1.55)*100)));
+  var word,color;
+  if(pct>=78){ word='走勢很接近示範'; color='var(--mint-2)'; }
+  else if(pct>=55){ word='大方向對，細節有出入'; color='#b4762a'; }
+  else { word='走勢和示範差得比較多'; color='var(--danger-ink,#c0402d)'; }
+  return '<b style="color:'+color+'">聲調形狀吻合度約 '+pct+'%（粗估）</b> · '+word+'。'+
+    '<br><span style="font-weight:700;color:var(--ink-3);font-size:12px">示範聲調 '+tones.join(' → ')+
+    '。這是形狀比對，不是音素級判定，只當方向參考。</span>';
+}
+
+function labRecStart(){
+  labNote('');
+  if(!recSecure()){
+    labNote('目前是 file:// 打開，瀏覽器不會授權麥克風。要錄音請用 HTTPS 或 localhost 打開；不錄音也能聽示範、練句子。');
+    labStatus('無法錄音（非安全環境）','warn');
+    return;
+  }
+  if(!recSupported()){
+    labNote('這個瀏覽器不支援錄音（需要 MediaRecorder）。換 Edge 或 Chrome 再試。');
+    labStatus('不支援錄音','warn');
+    return;
+  }
+  if(!labCur()){ labNote('先選一類內容，再錄音。'); return; }
+  navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:false,autoGainControl:false}})
+  .then(function(stream){
+    LAB.stream=stream;
+    LAB.chunks=[]; LAB.recSeriesRaw=[]; LAB.recScaled=null;
+    var cand=['audio/webm;codecs=opus','audio/mp4','audio/ogg;codecs=opus','audio/webm'];
+    var mime='';
+    for(var i=0;i<cand.length;i++){
+      if(window.MediaRecorder.isTypeSupported&&MediaRecorder.isTypeSupported(cand[i])){ mime=cand[i]; break; }
+    }
+    try{ LAB.mr=mime?new MediaRecorder(stream,{mimeType:mime}):new MediaRecorder(stream); }
+    catch(e){
+      labNote('這個瀏覽器無法建立錄音器。'); labStatus('錄音失敗','warn');
+      stream.getTracks().forEach(function(t){t.stop();}); LAB.stream=null; return;
+    }
+    LAB.mr.ondataavailable=function(e){ if(e.data&&e.data.size) LAB.chunks.push(e.data); };
+    LAB.mr.onstop=function(){
+      LAB.blob=new Blob(LAB.chunks,{type:(LAB.mr&&LAB.mr.mimeType)||'audio/webm'});
+      if(LAB.url){ try{ URL.revokeObjectURL(LAB.url); }catch(e){} }
+      LAB.url=URL.createObjectURL(LAB.blob);
+      var p=document.getElementById('labRecPlay'); if(p) p.disabled=false;
+      var ab=document.getElementById('labRecAB'); if(ab) ab.disabled=false;
+      var secs=((Date.now()-(LAB.t0||Date.now()))/1000).toFixed(1);
+      labStatus('錄好了 · 約 '+secs+' 秒 · 正在分析…','good');
+      labDrawWave();
+      if(LAB.stream){ LAB.stream.getTracks().forEach(function(t){t.stop();}); LAB.stream=null; }
+      recAnalyzeBlob(LAB.blob,function(scaled){
+        var pw=document.getElementById('labPtWrap'); if(pw) pw.classList.add('on');
+        if(scaled){
+          LAB.recScaled=scaled;
+          labPaintPitch();
+          labStatus('錄好了 · 曲線已生成','good');
+          labBump();
+        }else{
+          labStatus('錄好了，但沒辨認出嗓音','warn');
+          labNote('這段錄音裡沒找到穩定的嗓音。可能是：① 離麥克風太遠；② 環境噪音掩蓋了人聲；③ 錄的大多是氣音。靠近一點、用正常說話音量再試。');
+        }
+      });
+    };
+    LAB.mr.start(150);
+    LAB.t0=Date.now();
+    try{ labAsrStart(); }catch(e){}
+    var st=document.getElementById('labRecStart');
+    if(st){ st.classList.add('on'); st.disabled=true; }
+    var sp=document.getElementById('labRecStop'); if(sp) sp.disabled=false;
+    var rw=document.getElementById('labRecWave'); if(rw) rw.classList.add('on');
+    labStatus('錄音中…整句念完再按停止','good');
+    // 即時波形
+    try{
+      var AC=new (window.AudioContext||window.webkitAudioContext)();
+      if(AC.state==='suspended') AC.resume();
+      var src=AC.createMediaStreamSource(stream);
+      var an=AC.createAnalyser();
+      an.fftSize=2048;
+      src.connect(an);
+      LAB.analyser=an; LAB._ac=AC;
+      var tick=function(){
+        if(!LAB.analyser) return;
+        var arr;
+        try{
+          var fd=new Float32Array(LAB.analyser.fftSize);
+          LAB.analyser.getFloatTimeDomainData(fd); arr=fd;
+        }catch(e){
+          var bd=new Uint8Array(LAB.analyser.fftSize);
+          LAB.analyser.getByteTimeDomainData(bd);
+          arr=new Float32Array(bd.length);
+          for(var k=0;k<bd.length;k++) arr[k]=(bd[k]-128)/128;
+        }
+        var rms=0;
+        for(var q=0;q<arr.length;q++) rms+=arr[q]*arr[q];
+        LAB.recSeriesRaw.push(Math.min(1,Math.sqrt(rms/arr.length)*4));
+        labDrawWave();
+        LAB.raf=requestAnimationFrame(tick);
+      };
+      tick();
+    }catch(e){ labNote('錄音進行中，但無法即時顯示波形；錄完仍會分析音高。'); }
+  })
+  .catch(function(e){
+    labNote('拿不到麥克風權限（'+((e&&e.name)||'未知')+'）。請在瀏覽器允許麥克風後重試。');
+    labStatus('麥克風未授權','warn');
+  });
+}
+function labRecStop(){
+  if(LAB.raf){ cancelAnimationFrame(LAB.raf); LAB.raf=0; }
+  LAB.analyser=null;
+  if(LAB.mr&&LAB.mr.state!=='inactive'){ try{ LAB.mr.stop(); }catch(e){} }
+  try{ labAsrStop(); }catch(e){}
+  var a=document.getElementById('labRecStart'), b=document.getElementById('labRecStop');
+  if(a){ a.classList.remove('on'); a.disabled=false; }
+  if(b) b.disabled=true;
+}
+function labDrawWave(){
+  var cv=document.getElementById('labRecCanvas'); if(!cv) return;
+  var ctx=cv.getContext('2d'); if(!ctx) return;
+  var W=cv.width, H=cv.height;
+  ctx.clearRect(0,0,W,H);
+  var d=LAB.recSeriesRaw;
+  if(!d.length) return;
+  var n=Math.min(d.length,120);
+  var step=W/n;
+  ctx.strokeStyle='#2fc4a0'; ctx.lineWidth=2; ctx.lineCap='round';
+  ctx.beginPath();
+  for(var i=0;i<n;i++){
+    var v=d[d.length-n+i];
+    var x=i*step, h=Math.max(1,v*(H-8)/1);
+    ctx.moveTo(x,H/2-h/2); ctx.lineTo(x,H/2+h/2);
+  }
+  ctx.stroke();
+}
+function labRecAB(){
+  var it=labCur(); if(!it) return;
+  labSpeak(false);
+  var wait=Math.max(1300,String(it.yue).length*400);
+  setTimeout(function(){ if(LAB.url) new Audio(LAB.url).play(); },wait);
+}
+/* 每完成一次（有曲線）就把吻合度記進本輪成績 */
+function labBump(){
+  var r=LAB.recScaled, d=LAB.demoScaled&&LAB.demoScaled.pts;
+  if(!r||!r.length) return;
+  var score=null;
+  if(d){
+    var n=24, N=function(a){
+      var out=[],step=(a.length-1)/Math.max(1,n-1);
+      for(var i=0;i<n;i++) out.push(a[Math.min(a.length-1,Math.round(i*step))]);
+      return out;
+    };
+    var A=N(d),B=N(r),diff=0;
+    for(var i=0;i<n;i++) diff+=Math.abs(A[i]-B[i]);
+    diff/=n;
+    score=Math.max(0,Math.min(100,Math.round((1-diff*1.55)*100)));
+  }
+  if(score===null) return;
+  LAB.stat.n=(LAB.stat.n||0)+1;
+  LAB.stat.sum=(LAB.stat.sum||0)+score;
+  LAB.stat.best=Math.max(LAB.stat.best||0,score);
+  labSaveStat();
+  labPaintStat();
+}
+function labSaveStat(){ try{ localStorage.setItem(LAB.key,JSON.stringify(LAB.stat)); }catch(e){} }
+function labLoadStat(){
+  try{
+    var raw=localStorage.getItem(LAB.key);
+    if(raw){ var o=JSON.parse(raw); if(o&&typeof o==='object') LAB.stat={n:o.n||0,sum:o.sum||0,best:o.best||0}; }
+  }catch(e){ LAB.stat={n:0,sum:0,best:0}; }
+}
+
+/* ==================== 練習台：語音轉寫 ==================== */
+function labAsrReset(){
+  LAB.asr.on=false; LAB.asr.transcript=''; LAB.asr.err='';
+  var w=document.getElementById('labAsrWrap'); if(w) w.classList.add('on');
+  var s=document.getElementById('labAsrScore'); if(s){ s.textContent='—'; s.className='big'; }
+  var h=document.getElementById('labAsrHeard');
+  if(h) h.innerHTML='<span class="ph">錄音時會同時做語音識別，這裡顯示瀏覽器「聽成了什麼字」。</span>';
+  var f=document.getElementById('labAsrFoot');
+  if(f) f.innerHTML='只做事後文字比對：<b>講對字</b>才得分，<b>聲調錯了照樣得滿分</b>。所以請以曲線為準。';
+}
+function labAsrStart(){
+  labAsrReset();
+  if(!asrSupported()) return;
+  if(!recSecure()) return;
+  var API=asrGetAPI(); if(!API) return;
+  var w=document.getElementById('labAsrWrap'); if(w) w.classList.add('on');
+  var h=document.getElementById('labAsrHeard');
+  if(h) h.innerHTML='<span class="ph">正在聽…請把這個詞／句子念完。</span>';
+  try{
+    var rec=new API();
+    rec.lang='zh-HK'; rec.continuous=true; rec.interimResults=false; rec.maxAlternatives=1;
+    rec.onresult=function(e){
+      var txt='';
+      for(var i=0;i<e.results.length;i++){
+        if(e.results[i].isFinal) txt+=e.results[i][0].transcript;
+      }
+      if(txt){ LAB.asr.transcript=txt; labAsrPaint(txt); }
+    };
+    rec.onerror=function(e){
+      LAB.asr.err=e.error||'unknown';
+      if(LAB.asr.err==='no-speech'){ labAsrFail('沒聽到語音。靠近麥克風、正常音量再錄一次。'); }
+      else if(LAB.asr.err==='not-allowed'||LAB.asr.err==='service-not-allowed'){ labAsrFail('瀏覽器沒有授權語音識別（需要連網，部分瀏覽器不含粵語引擎）。'); }
+      else if(LAB.asr.err==='network'){ labAsrFail('語音識別服務連不上（需要網路）。曲線不受影響。'); }
+      else if(LAB.asr.err==='language-not-supported'){ labAsrFail('這個瀏覽器不支援粵語（zh-HK）識別。Chrome / Edge 桌上版通常可用。'); }
+      else if(LAB.asr.err==='aborted'){ /* 主動停止 */ }
+      else { labAsrFail('語音識別出錯（'+LAB.asr.err+'）。曲線不受影響。'); }
+    };
+    rec.onend=function(){ LAB.asr.on=false; labAsrFinish(); };
+    LAB.asr.rec=rec; LAB.asr.on=true;
+    rec.start();
+  }catch(e){
+    LAB.asr.err=(e&&e.message)||'start-failed';
+    labAsrFail('語音識別啟動失敗：'+LAB.asr.err);
+  }
+}
+function labAsrStop(){
+  if(LAB.asr.rec&&LAB.asr.on){
+    try{ LAB.asr.rec.stop(); }catch(e){ try{ LAB.asr.rec.abort(); }catch(e2){} }
+  }
+}
+function labAsrFail(msg){
+  LAB.asr.on=false;
+  var w=document.getElementById('labAsrWrap'); if(w) w.classList.add('on');
+  var s=document.getElementById('labAsrScore'); if(s){ s.textContent='—'; s.className='big'; }
+  var h=document.getElementById('labAsrHeard'); if(h) h.innerHTML='<span class="ph">'+msg+'</span>';
+}
+function labAsrPaint(txt){
+  var h=document.getElementById('labAsrHeard'); if(!h) return;
+  h.innerHTML='<span class="ph">聽到：</span>'+escHtml(txt);
+}
+function labAsrFinish(){
+  var it=labCur(); if(!it) return;
+  var target=String(it.yue||'');
+  var w=document.getElementById('labAsrWrap'); if(w) w.classList.add('on');
+  var h=document.getElementById('labAsrHeard'), sc=document.getElementById('labAsrScore');
+  if(!LAB.asr.transcript){
+    if(h) h.innerHTML='<span class="ph">'+(LAB.asr.err?'識別未成功，可以再錄一次。':'沒轉出文字（環境太吵、太小聲，或這個瀏覽器缺粵語引擎）。')+'</span>';
+    if(sc){ sc.textContent='—'; sc.className='big'; }
+    return;
+  }
+  var score=scoreTranscript(LAB.asr.transcript,target);
+  if(sc){ sc.textContent=score+'%'; sc.className='big'+(score>=80?' good':(score>=50?' mid':' bad')); }
+  var rest=LAB.asr.transcript, marks=[], chars=target.match(/[\u3400-\u9fff]/g)||[];
+  chars.forEach(function(ch){
+    var k=rest.indexOf(ch);
+    if(k>=0){ marks.push(1); rest=rest.slice(0,k)+'\u0000'+rest.slice(k+1); }
+    else marks.push(0);
+  });
+  var html='<span class="ph">聽到：</span>'+escHtml(LAB.asr.transcript);
+  // 單字題（1–2 個字）時，逐字標記意義不大，只在 3 字以上才畫對照行
+  if(chars.length>=3){
+    html+='<div style="margin-top:6px;font-size:12.5px;line-height:1.9"><span class="ph">對照：</span>';
+    chars.forEach(function(ch,i){
+      html+='<span class="'+(marks[i]?'ok':'miss')+'" title="'+(marks[i]?'有念到':'沒念到')+'">'+escHtml(ch)+'</span> ';
+    });
+    html+='</div>';
+  }else{
+    // 短題的關鍵陷阱：單字同音字一律 0 分（「河」被聽成「何」），但發音可能是對的。
+    // 必須明講，否則使用者會以為自己念錯了。
+    html+='<div style="margin-top:6px;font-size:11.5px;line-height:1.7;color:var(--ink-3)">'+
+      '這題只有 '+chars.length+' 個字，'+(score<100?'被識別成同音字就會判 0 分——<b>但那不代表你念錯了</b>（例如「河」被聽成「何」）。':'')+
+      '短題請看下面的音高曲線，或改練 3 字以上的詞。</div>';
+  }
+  if(h) h.innerHTML=html;
+}
+
+/* ==================== 練習台：初始化 ==================== */
+function initLab(){
+  var box=document.getElementById('labBox'); if(!box) return;
+  labLoadStat();
+  labLoad();
+  labPaintSrc(); labPaintSub(); labPaintCard(); labPaintStat(); labPaintDemo();
+
+  // 內容來源
+  document.getElementById('labSrc').addEventListener('click',function(e){
+    var b=e.target.closest('[data-lab-src]'); if(!b) return;
+    LAB.src=b.getAttribute('data-lab-src');
+    LAB.sub='all';
+    labResetRec();
+    labLoad(); labPaintSrc(); labPaintSub(); labPaintCard(); labPaintDemo();
+  });
+  document.getElementById('labSub').addEventListener('click',function(e){
+    var b=e.target.closest('[data-lab-sub]'); if(!b) return;
+    LAB.sub=b.getAttribute('data-lab-sub');
+    labResetRec();
+    labLoad(); labPaintSub(); labPaintCard(); labPaintDemo();
+  });
+  // 工具列
+  document.getElementById('labPlay').addEventListener('click',function(){ labSpeak(false); });
+  document.getElementById('labSlow').addEventListener('click',function(){ labSpeak(true); });
+  document.getElementById('labMask').addEventListener('click',function(){
+    LAB.mask=!LAB.mask;
+    labPaintCard();
+  });
+  document.getElementById('labNext').addEventListener('click',function(){ labGo(1); });
+  document.getElementById('labShuffle').addEventListener('click',function(){ labShuffleOne(); });
+  document.getElementById('labResetStat').addEventListener('click',function(){
+    LAB.stat={n:0,sum:0,best:0}; labSaveStat(); labPaintStat();
+    toast('本輪成績已清除');
+  });
+  // 速度
+  var r=document.getElementById('labRate'), rv=document.getElementById('labRateVal');
+  if(r){
+    r.value=String(LAB.rate);
+    r.addEventListener('input',function(){
+      LAB.rate=parseFloat(r.value)||0.8;
+      if(rv) rv.textContent=LAB.rate.toFixed(1)+'×';
+    });
+  }
+  // 錄音
+  document.getElementById('labRecStart').addEventListener('click',function(){ labRecStart(); });
+  document.getElementById('labRecStop').addEventListener('click',function(){ labRecStop(); });
+  document.getElementById('labRecPlay').addEventListener('click',function(){ if(LAB.url) new Audio(LAB.url).play(); });
+  document.getElementById('labRecAB').addEventListener('click',function(){ labRecAB(); });
+
+  // 環境提示
+  if(!recSecure()){
+    labNote('目前是 file:// 打開，瀏覽器不會授權麥克風（安全限制）。聽示範、練句型都正常，只有錄音與轉寫需要 HTTPS。');
+  }else if(!asrSupported()){
+    var f=document.getElementById('labAsrFoot');
+    if(f) f.innerHTML='這個瀏覽器沒有語音識別介面（Web Speech API）。桌機版 Chrome / Edge 通常支援；曲線不受影響。';
+  }
+  // 鍵盤：← → 切題，空格重播
+  document.addEventListener('keydown',function(e){
+    var on=document.getElementById('lab');
+    if(!on) return;
+    var r=on.getBoundingClientRect();
+    // 只有練習台在視窗內時才吃鍵盤，避免干擾其他區塊
+    if(r.bottom<0||r.top>window.innerHeight) return;
+    if(e.target&&/INPUT|TEXTAREA|SELECT/.test(e.target.tagName)) return;
+    if(e.key==='ArrowRight'){ e.preventDefault(); labGo(1); }
+    else if(e.key==='ArrowLeft'){ e.preventDefault(); labGo(-1); }
+    else if(e.key===' '){ e.preventDefault(); labSpeak(false); }
   });
 }
 
@@ -22019,6 +22897,7 @@ document.addEventListener('DOMContentLoaded',function(){
   initToc();                 // 新增：左側總目錄（渲染 / 折疊 / 高亮 / 進度）
   bindWordSpeak();           // 選中任何中文即朗讀（劃詞發音）
   initFocusCard();           // 專注練一句（場景逐句閉環練習）
+  initLab();                 // 跟讀練習台（全站內容 → 錄音 + 雙回饋）
   initDict();
   loadTheme(); applyTheme(false); bindTheme();   // 外觀：跟隨系統 / 淺色 / 深色
   buildAppIconLinks(); appManifest();            // 圖示與可安裝描述（執行時生成）
