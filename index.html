@@ -321,10 +321,9 @@
     var(--bg);
 }
 :root[data-theme="pink"] ::selection{background:rgba(232,97,159,.24);color:inherit}
-:root[data-theme="pink"] .hero,
-:root[data-theme="pink"] .qd-theme{box-shadow:0 1px 0 #fff inset, var(--shadow)}
-:root[data-theme="pink"] .qd-theme{background:#fff0f7}
-:root[data-theme="pink"] .qd-theme button.on{box-shadow:0 1px 5px rgba(201,49,122,.28)}
+:root[data-theme="pink"] .hero{box-shadow:0 1px 0 #fff inset, var(--shadow)}
+:root[data-theme="pink"] .qd-theme-menu{background:#fffafd}
+:root[data-theme="pink"] .qd-theme-menu button.on{box-shadow:0 1px 5px rgba(201,49,122,.18)}
 
 *{box-sizing:border-box}
 html{scroll-behavior:smooth;scroll-padding-top:78px}
@@ -1466,16 +1465,33 @@ body.dock-lift .dock-stack{transform:translateY(calc(-1 * var(--dock-h,68px)))}
   transition:.16s;text-decoration:none}
 .qd-go:hover{transform:translateY(-1px);box-shadow:0 9px 20px rgba(37,166,135,.34)}
 .qd-go svg{width:14px;height:14px}
-/* 主題切換：三態膠囊（跟隨系統 / 淺色 / 深色） */
-.qd-theme{display:flex;align-items:center;gap:2px;padding:2px;border-radius:999px;background:var(--bg-3);flex:none}
-.qd-theme button{width:26px;height:26px;display:grid;place-items:center;padding:0;border:none;cursor:pointer;
-  border-radius:999px;background:transparent;color:var(--ink-3);transition:.15s;font-family:inherit}
-.qd-theme button svg{width:14px;height:14px}
-.qd-theme button:hover{color:var(--mint-2)}
-.qd-theme button.on{background:var(--surface);color:var(--mint-2);box-shadow:0 1px 4px rgba(16,60,50,.16)}
-:root[data-theme="dark"] .qd-theme button.on{box-shadow:0 1px 4px rgba(0,0,0,.5)}
-:root[data-theme="dark"] .qd-theme button.on,
-:root[data-theme="dark"] .qd-theme button:hover{color:var(--mint-ink)}
+/* 外觀切換：一個獨立按鈕 + 彈出面板（跟隨系統 / 淺色 / 深色 / 千禧粉） */
+.qd-theme-wrap{position:relative;flex:none}
+.qd-theme-toggle{display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 11px 0 9px;
+  border:1px solid var(--line-2);border-radius:999px;background:var(--surface);color:var(--ink-2);
+  cursor:pointer;font-family:inherit;font-size:12px;font-weight:800;transition:.15s;white-space:nowrap}
+.qd-theme-toggle:hover{border-color:var(--mint);color:var(--mint-2);background:var(--mint-soft)}
+.qd-theme-toggle svg{width:15px;height:15px;flex:none}
+.qd-theme-toggle .car{width:11px;height:11px;opacity:.65;transition:transform .18s}
+.qd-theme-wrap.open .qd-theme-toggle{border-color:var(--mint);color:var(--mint-2);background:var(--mint-soft)}
+.qd-theme-wrap.open .qd-theme-toggle .car{transform:rotate(180deg)}
+.qd-theme-menu{position:absolute;right:0;bottom:calc(100% + 10px);z-index:95;min-width:172px;
+  padding:6px;border-radius:14px;background:var(--panel-glass);border:1px solid var(--line);
+  box-shadow:var(--shadow-lg);display:none;animation:qdMenuIn .16s ease-out}
+.qd-theme-wrap.open .qd-theme-menu{display:block}
+@keyframes qdMenuIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.qd-theme-menu button{display:flex;align-items:center;gap:9px;width:100%;padding:8px 10px;border:none;
+  border-radius:9px;background:transparent;color:var(--ink-2);cursor:pointer;font-family:inherit;
+  font-size:12.5px;font-weight:700;text-align:left;transition:.13s}
+.qd-theme-menu button:hover{background:var(--mint-soft);color:var(--mint-2)}
+.qd-theme-menu button.on{background:var(--mint-soft);color:var(--mint-2);font-weight:900}
+.qd-theme-menu button svg{width:15px;height:15px;flex:none}
+.qd-theme-menu button .nm{flex:1}
+.qd-theme-menu button .ck{width:13px;height:13px;flex:none;opacity:0;color:var(--mint)}
+.qd-theme-menu button.on .ck{opacity:1}
+.qd-theme-menu .dsep{height:1px;margin:5px 8px;background:var(--line)}
+:root[data-theme="dark"] .qd-theme-menu button:hover,
+:root[data-theme="dark"] .qd-theme-menu button.on{color:var(--mint-ink)}
 
 /* 入聲卡（第 7/8/9 聲）：略深一階，與六個本調卡分層 */
 .tone-card.entry{background:var(--surface-3);border-style:dashed}
@@ -1505,8 +1521,10 @@ body.dock-lift .dock-stack{transform:translateY(calc(-1 * var(--dock-h,68px)))}
   .qd-rate .lb{display:none}
 }
 @media (max-width:640px){
-  .qd-theme button{width:23px;height:23px}
-  .qd-theme button svg{width:12.5px;height:12.5px}
+  .qd-theme-toggle{height:27px;padding:0 9px 0 8px;font-size:11.5px;gap:5px}
+  .qd-theme-toggle svg{width:13px;height:13px}
+  .qd-theme-toggle .car{width:10px;height:10px}
+  .qd-theme-menu{min-width:156px}
   .qd-rate{gap:3px}
   .qd-btn{font-size:11px;padding:3px 6px}
   .qd-go{font-size:11.5px;padding:7px 11px}
@@ -2581,19 +2599,35 @@ body.dock-lift .dock-stack{transform:translateY(calc(-1 * var(--dock-h,68px)))}
       <span>詞庫</span><span class="t2">15,175</span>
     </a>
     <span class="qd-sep"></span>
-    <div class="qd-theme" role="group" aria-label="外觀主題" id="qdTheme">
-      <button type="button" data-theme-act="auto" title="跟隨系統" aria-label="跟隨系統外觀">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3.5" width="20" height="13" rx="2.5"/><path d="M8.5 20.5h7M12 16.5v4"/></svg>
+    <div class="qd-theme-wrap" id="qdTheme" role="group" aria-label="外觀主題">
+      <button type="button" class="qd-theme-toggle" id="qdThemeBtn" aria-haspopup="true" aria-expanded="false" aria-controls="qdThemeMenu" title="切換外觀（淺色 / 深色 / 千禧粉）">
+        <svg id="qdThemeIco" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.6v2.2M12 19.2v2.2M2.6 12h2.2M19.2 12h2.2M5.4 5.4l1.6 1.6M17 17l1.6 1.6M18.6 5.4L17 7M7 17l-1.6 1.6"/></svg>
+        <span id="qdThemeLbl">淺色</span>
+        <svg class="car" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
       </button>
-      <button type="button" data-theme-act="light" title="淺色" aria-label="淺色外觀">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.6v2.2M12 19.2v2.2M2.6 12h2.2M19.2 12h2.2M5.4 5.4l1.6 1.6M17 17l1.6 1.6M18.6 5.4L17 7M7 17l-1.6 1.6"/></svg>
-      </button>
-      <button type="button" data-theme-act="dark" title="深色" aria-label="深色外觀">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.3 14.4A8.6 8.6 0 0 1 9.6 3.7 8.7 8.7 0 1 0 20.3 14.4z"/></svg>
-      </button>
-      <button type="button" data-theme-act="pink" title="千禧粉" aria-label="千禧粉外觀" class="qd-pink">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.5s-7.6-4.6-7.6-9.4A4.4 4.4 0 0 1 12 8.3a4.4 4.4 0 0 1 7.6 2.8c0 4.8-7.6 9.4-7.6 9.4z"/></svg>
-      </button>
+      <div class="qd-theme-menu" id="qdThemeMenu" role="menu" aria-label="選擇外觀">
+        <button type="button" role="menuitemradio" data-theme-act="light" aria-checked="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.6v2.2M12 19.2v2.2M2.6 12h2.2M19.2 12h2.2M5.4 5.4l1.6 1.6M17 17l1.6 1.6M18.6 5.4L17 7M7 17l-1.6 1.6"/></svg>
+          <span class="nm">淺色</span>
+          <svg class="ck" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg>
+        </button>
+        <button type="button" role="menuitemradio" data-theme-act="dark" aria-checked="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.3 14.4A8.6 8.6 0 0 1 9.6 3.7 8.7 8.7 0 1 0 20.3 14.4z"/></svg>
+          <span class="nm">深色</span>
+          <svg class="ck" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg>
+        </button>
+        <button type="button" role="menuitemradio" data-theme-act="pink" aria-checked="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.5s-7.6-4.6-7.6-9.4A4.4 4.4 0 0 1 12 8.3a4.4 4.4 0 0 1 7.6 2.8c0 4.8-7.6 9.4-7.6 9.4z"/></svg>
+          <span class="nm">千禧粉</span>
+          <svg class="ck" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg>
+        </button>
+        <div class="dsep"></div>
+        <button type="button" role="menuitemradio" data-theme-act="auto" aria-checked="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3.5" width="20" height="13" rx="2.5"/><path d="M8.5 20.5h7M12 16.5v4"/></svg>
+          <span class="nm">跟隨系統</span>
+          <svg class="ck" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg>
+        </button>
+      </div>
     </div>
     <span class="qd-sep"></span>
     <div class="qd-rate" role="group" aria-label="播放倍速">
@@ -4524,11 +4558,28 @@ function applyTheme(persist){
     }catch(e){}
   }
 }
+var QD_ICO={
+  light:'<circle cx="12" cy="12" r="4.2"/><path d="M12 2.6v2.2M12 19.2v2.2M2.6 12h2.2M19.2 12h2.2M5.4 5.4l1.6 1.6M17 17l1.6 1.6M18.6 5.4L17 7M7 17l-1.6 1.6"/>',
+  dark:'<path d="M20.3 14.4A8.6 8.6 0 0 1 9.6 3.7 8.7 8.7 0 1 0 20.3 14.4z"/>',
+  pink:'<path d="M12 20.5s-7.6-4.6-7.6-9.4A4.4 4.4 0 0 1 12 8.3a4.4 4.4 0 0 1 7.6 2.8c0 4.8-7.6 9.4-7.6 9.4z"/>',
+  auto:'<rect x="2" y="3.5" width="20" height="13" rx="2.5"/><path d="M8.5 20.5h7M12 16.5v4"/>'
+};
 function renderTheme(){
+  var eff=effectiveTheme();
   var bs=document.querySelectorAll('#qdTheme [data-theme-act]');
   for(var i=0;i<bs.length;i++){
-    bs[i].classList.toggle('on',bs[i].getAttribute('data-theme-act')===THEME.v);
+    var on=bs[i].getAttribute('data-theme-act')===THEME.v;
+    bs[i].classList.toggle('on',on);
+    bs[i].setAttribute('aria-checked',on?'true':'false');
   }
+  // 按鈕本身顯示「當前實際生效的外觀」
+  var ico=document.getElementById('qdThemeIco');
+  if(ico){
+    var k=(THEME.v==='auto')?'auto':eff;
+    ico.innerHTML=QD_ICO[k]||QD_ICO.light;
+  }
+  var lbl=document.getElementById('qdThemeLbl');
+  if(lbl) lbl.textContent=(THEME.v==='auto')?('跟隨系統'):themeName(eff);
 }
 function themeName(v){
   return v==='dark'?'深色':(v==='pink'?'千禧粉':(v==='light'?'淺色':'跟隨系統'));
@@ -4541,13 +4592,38 @@ function setTheme(v,silent){
     toast('外觀：'+(THEME.v==='auto'?('跟隨系統（現為'+(eff==='dark'?'深色':(eff==='pink'?'千禧粉':'淺色'))+'）'):themeName(eff)));
   }
 }
+function qdThemeOpen(open){
+  var w=document.getElementById('qdTheme');
+  var b=document.getElementById('qdThemeBtn');
+  if(!w||!b) return;
+  w.classList.toggle('open',!!open);
+  b.setAttribute('aria-expanded',open?'true':'false');
+}
 function bindTheme(){
   var host=document.getElementById('qdTheme');
   if(!host) return;
+  var btn=document.getElementById('qdThemeBtn');
+  if(btn){
+    btn.addEventListener('click',function(e){
+      e.stopPropagation();
+      qdThemeOpen(!host.classList.contains('open'));
+    });
+  }
   host.addEventListener('click',function(e){
     var b=e.target.closest?e.target.closest('[data-theme-act]'):null;
     if(!b) return;
     setTheme(b.getAttribute('data-theme-act'));
+    qdThemeOpen(false);
+  });
+  // 點外面 / 按 Esc 收起來
+  document.addEventListener('click',function(e){
+    if(host.classList.contains('open') && !host.contains(e.target)) qdThemeOpen(false);
+  });
+  document.addEventListener('keydown',function(e){
+    if((e.key==='Escape'||e.key==='Esc') && host.classList.contains('open')){
+      qdThemeOpen(false);
+      if(btn) btn.focus();
+    }
   });
   // 選「跟隨系統」時，系統切換要即時跟上
   if(MQ_DARK){
