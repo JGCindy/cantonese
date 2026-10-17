@@ -2832,12 +2832,18 @@ async function recStart(){
     document.getElementById('recPlay').disabled=false;
     document.getElementById('recAB').disabled=false;
     var secs=((Date.now()-(REC.t0||Date.now()))/1000).toFixed(1);
-    recSetStatus('錄好了 · 約 '+secs+' 秒','good');
+    recSetStatus('錄好了 · 約 '+secs+' 秒 · 正在分析音高…','good');
     recDrawWave();
-    var sc=f0ToScaled(REC.recSeries);
-    if(sc){ REC.recScaled=sc; recPaintPitch(); }
-    else recNote('錄音完成了，但沒偵測到穩定的嗓音（可能太小聲或環境太吵）。靠近麥克風、用正常音量重錄一次。');
     if(REC.stream){ REC.stream.getTracks().forEach(function(t){t.stop();}); REC.stream=null; }
+    // 改為整段音頻的離線分析：比逐幀即時分析穩得多，
+    // 且門檻按錄音本身的音量自動適配（低音量麥克風也能出曲線）
+    recAnalyzeBlob(REC.blob, function(scaled){
+      if(scaled){ REC.recScaled=scaled; recPaintPitch(); recSetStatus('錄好了 · 曲線已生成','good'); }
+      else {
+        recSetStatus('錄好了，但沒辨認出嗓音','warn');
+        recNote('這段錄音裡沒找到穩定的嗓音。可能是：① 離麥克風太遠；② 環境噪音掩蓋了人聲；③ 錄的大多是氣音。靠近一點、用正常說話音量再試。');
+      }
+    });
   };
   REC.mr.start(150);
   REC.t0=Date.now();
@@ -2855,6 +2861,7 @@ async function recStart(){
     an.fftSize=2048;
     src.connect(an);
     REC.analyser=an;
+    // 即時迴圈只負責畫音量波形；音高改為錄完後對整段音頻做離線分析（recAnalyzeBlob）
     var tick=function(){
       if(!REC.analyser) return;
       var arr;
@@ -2868,8 +2875,6 @@ async function recStart(){
         arr=new Float32Array(bd.length);
         for(var k=0;k<bd.length;k++) arr[k]=(bd[k]-128)/128;
       }
-      var hz=detectF0(arr,REC.AC.sampleRate);
-      REC.recSeries.push(hz);
       var rms=0;
       for(var q=0;q<arr.length;q++) rms+=arr[q]*arr[q];
       REC.recSeriesRaw.push(Math.min(1,Math.sqrt(rms/arr.length)*4));
@@ -2878,8 +2883,70 @@ async function recStart(){
     };
     tick();
   }catch(e){
-    recNote('錄音進行中，但這個瀏覽器無法即時分析音高；錄完仍可回放對比。');
+    recNote('錄音進行中，但無法即時顯示波形；錄完仍會分析音高。');
   }
+}
+/* 整段音頻的離線分析：解碼錄音 → 重採樣到 8kHz → 逐幀自相關。
+   關鍵改進：有聲門檻按「這段錄音自己的音量分佈」自適應，
+   麥克風錄得小聲也能出曲線，不再被固定門檻誤殺。 */
+function recAnalyzeBlob(blob,done){
+  try{
+    REC.AC=REC.AC||new (window.AudioContext||window.webkitAudioContext)();
+    var fr=new FileReader();
+    fr.onload=function(){
+      REC.AC.decodeAudioData(fr.result.slice(0)).then(function(buf){
+        try{
+          var sr=buf.sampleRate;
+          // 混成單聲道
+          var n=buf.length, mono=new Float32Array(n);
+          for(var ch=0;ch<buf.numberOfChannels;ch++){
+            var d=buf.getChannelData(ch);
+            for(var i=0;i<n;i++) mono[i]+=d[i]/buf.numberOfChannels;
+          }
+          // 重採樣到約 8kHz（均值抽取，抗混疊夠用於 F0）
+          var R=Math.max(1,Math.round(sr/8000)), sr2=Math.floor(sr/R);
+          var m2=new Float32Array(Math.floor(n/R));
+          for(i=0;i<m2.length;i++){
+            var s2=0;
+            for(var k2=0;k2<R;k2++) s2+=mono[i*R+k2]||0;
+            m2[i]=s2/R;
+          }
+          // 先算每幀 RMS，取「說話幀」的典型音量作為自適應門檻
+          var win=Math.round(sr2*0.04), hop=Math.round(sr2*0.01);
+          var nFrames=Math.max(1,Math.floor((m2.length-win)/hop));
+          var rmsArr=new Float32Array(nFrames);
+          for(var f=0;f<nFrames;f++){
+            var e2=0,off=f*hop;
+            for(i=0;i<win;i++){ var x2=m2[off+i]||0; e2+=x2*x2; }
+            rmsArr[f]=Math.sqrt(e2/win);
+          }
+          var sorted=Array.prototype.slice.call(rmsArr).sort(function(a,b){return a-b;});
+          var p60=sorted[Math.floor(sorted.length*0.60)]||0;
+          var p90=sorted[Math.floor(sorted.length*0.90)]||0;
+          var floor=Math.max(0.004, p90*0.045);          // 絕對下限，防止純靜音誤判
+          var voicedGate=Math.max(floor, p60*0.35);      // 相對門檻：中位說話音量的 35%
+          // 逐幀 F0（有聲幀才算）
+          var series=new Array(nFrames);
+          var count=0;
+          for(f=0;f<nFrames;f++){
+            if(rmsArr[f]<voicedGate){ series[f]=0; continue; }
+            var off2=f*hop, seg=new Float32Array(win);
+            for(i=0;i<win;i++) seg[i]=m2[off2+i]||0;
+            var hz=detectF0(seg,sr2);
+            series[f]=hz;
+            if(hz>0) count++;
+          }
+          REC.recSeries=series;
+          var scaled=f0ToScaled(series);
+          done(scaled);
+        }catch(err){ recNote('音高分析出錯：'+(err.message||err)); done(null); }
+      }).catch(function(){
+        recNote('無法解碼這段錄音（瀏覽器格式限制），曲線暫時畫不出來；錄音仍可回放。');
+        done(null);
+      });
+    };
+    fr.readAsArrayBuffer(blob);
+  }catch(e){ recNote('分析器初始化失敗：'+(e.message||e)); done(null); }
 }
 function recStop(){
   if(REC.raf){ cancelAnimationFrame(REC.raf); REC.raf=0; }
