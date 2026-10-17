@@ -2654,7 +2654,7 @@ function f0ToScaled(arr){
   var sm=[];
   for(i=0;i<a.length;i++){
     var w=[];
-    for(var d=-2;d<=2;d++){ var j=i+d; if(j>=0&&j<a.length&&a[j]>0) w.push(a[j]); }
+    for(var d=-3;d<=3;d++){ var j=i+d; if(j>=0&&j<a.length&&a[j]>0) w.push(a[j]); }
     if(w.length>=2){ w.sort(function(x,y){return x-y;}); sm.push(w[Math.floor(w.length/2)]); }
     else sm.push(0);
   }
@@ -2665,7 +2665,7 @@ function f0ToScaled(arr){
     if(voiced&&s<0) s=i;
     if(!voiced&&s>=0){ runs.push([s,i]); s=-1; }
   }
-  runs.forEach(function(r){ if(r[1]-r[0]<5){ for(var k=r[0];k<r[1];k++) sm[k]=0; } });
+  runs.forEach(function(r){ if(r[1]-r[0]<4){ for(var k=r[0];k<r[1];k++) sm[k]=0; } });
   var v=sm.filter(function(x){ return x>0; });
   if(v.length<8) return null;
   // ③ 内部补洞：两段有声之间的小空隙线性插值
@@ -2674,7 +2674,7 @@ function f0ToScaled(arr){
     if(filled[i]===0&&filled[i-1]>0){
       var e=i;
       while(e<filled.length&&filled[e]===0) e++;
-      if(e<filled.length&&filled[e]>0&&(e-i)<=12){
+      if(e<filled.length&&filled[e]>0&&(e-i)<=30){
         for(var k2=i;k2<e;k2++) filled[k2]=filled[i-1]+(filled[e]-filled[i-1])*(k2-i+1)/(e-i+1);
       }
     }
@@ -2685,6 +2685,17 @@ function f0ToScaled(arr){
   while(en>st&&filled[en-1]===0) en--;
   if(en-st<8) return null;
   var core=filled.slice(st,en);
+  // 终段平滑：3 点滑动平均（只对有声值），把补洞衔接处的台阶磨掉
+  var sm2=new Array(core.length);
+  for(i=0;i<core.length;i++){
+    var s3=0,c3=0;
+    for(var d3=-1;d3<=1;d3++){
+      var j3=i+d3;
+      if(j3>=0&&j3<core.length&&core[j3]>0){ s3+=core[j3]; c3++; }
+    }
+    sm2[i]=c3?(s3/c3):(core[i]>0?core[i]:0);
+  }
+  core=sm2;
   // 归一化（半音尺度，10%–90% 分位）
   var sorted=core.filter(function(x){return x>0;}).sort(function(x,y){return x-y;});
   var lo=sorted[Math.floor(sorted.length*0.1)], hi=sorted[Math.floor(sorted.length*0.9)];
@@ -2924,7 +2935,7 @@ function recAnalyzeBlob(blob,done){
           var p60=sorted[Math.floor(sorted.length*0.60)]||0;
           var p90=sorted[Math.floor(sorted.length*0.90)]||0;
           var floor=Math.max(0.004, p90*0.045);          // 絕對下限，防止純靜音誤判
-          var voicedGate=Math.max(floor, p60*0.35);      // 相對門檻：中位說話音量的 35%
+          var voicedGate=Math.max(floor, p60*0.28);      // 相對門檻：中位說話音量的 28%（寧可多收，後面有平滑兜底）
           // 逐幀 F0（有聲幀才算）
           var series=new Array(nFrames);
           var count=0;
