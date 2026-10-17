@@ -1531,13 +1531,26 @@ body.toc-open #tocScrim{opacity:1;pointer-events:auto}
 }
 
 /* 跳轉落點高亮：讓用戶一眼確認「已經到這一節」 */
-@keyframes wbFlashPulse{
-  0%   {box-shadow:0 0 0 0 rgba(47,196,160,.55)}
-  55%  {box-shadow:0 0 0 10px rgba(47,196,160,0)}
-  100% {box-shadow:0 0 0 0 rgba(47,196,160,0)}
+/* 跳轉落點高亮：讓用戶一眼確認「已經到這一節」。
+   顏色一律取 var(--mint)——它在四套配色裡都是當前主題的主色
+   （綠日 #2fc4a0 / 綠夜 / 粉日 #e8619f / 粉夜 #f06aa8），
+   所以閃光會自動跟著主題走，不必為每套主題單獨寫規則。
+   做法：用 outline 描邊 + 向外擴散的 box-shadow 光暈，兩者都對變量取色，
+   透明度交給 outline-color / 陰影的半徑收斂來表現（CSS 無法對變量做 alpha 插值）。 */
+@keyframes wbFlashRing{
+  0%   {outline-color:var(--mint); box-shadow:0 0 0 0 var(--mint)}
+  30%  {box-shadow:0 0 0 4px var(--mint), 0 0 26px 8px var(--mint)}
+  100% {outline-color:transparent;  box-shadow:0 0 0 0 transparent}
 }
-.wb-flash{animation:wbFlashPulse 1.5s ease-out 1;border-radius:18px}
-@media (prefers-reduced-motion: reduce){ .wb-flash{animation:none} }
+.wb-flash{
+  outline:2px solid var(--mint);
+  outline-offset:4px;
+  border-radius:18px;
+  animation:wbFlashRing 1.35s cubic-bezier(.22,.8,.32,1) 1;
+}
+@media (prefers-reduced-motion: reduce){
+  .wb-flash{animation:none;outline:0 none}
+}
 
 /* 收合式長節（音節全表 / 錯誤對照 / 發音要領 / 資源總覽） */
 .wrap.collapsible > section.lesson{margin:40px 0}
@@ -23041,7 +23054,8 @@ function wbFlash(el){
     el.classList.remove('wb-flash');
     void el.offsetWidth;                 /* 重置動畫 */
     el.classList.add('wb-flash');
-    setTimeout(function(){ el.classList.remove('wb-flash'); },1600);
+    /* 動畫時長 1.35s，留 150ms 餘量再移除 class，避免收尾時描邊被硬切 */
+    setTimeout(function(){ el.classList.remove('wb-flash'); },1500);
   }catch(e){}
 }
 
@@ -23099,7 +23113,7 @@ function scrollSpy2(){
   function on(){
     /* 與頂部導航同一套規則：pad=導航高度+24；取「視口線上方最近的區塊」 */
     var nv=document.querySelector('nav.sticky');
-    var pad=(nv&&nv.offsetHeight?nv.offsetHeight:0)+24;
+    var pad=(nv&&nv.offsetHeight?nv.offsetHeight:0)+18;   /* 同上：略大於落點 */
     var y=window.scrollY+pad, idx=-1, bestTop=-Infinity;
     /* 注意：不能用 offsetTop——它是相對定位祖先的座標，嵌套容器裡會錯位；
        必須用 getBoundingClientRect().top + scrollY 換算成文檔絕對座標 */
@@ -23227,7 +23241,9 @@ function scrollSpy(){
        導航順序與文檔順序不同（如 複習計畫/練習台 排在尾但位於文檔中段），
        取最後者會錯點到別的節。 */
     var nv=document.querySelector('nav.sticky');
-    var pad=(nv&&nv.offsetHeight?nv.offsetHeight:0)+24;
+    /* pad 必須略大於跳轉落點（nav 高度+16），否則寬度變化導致導航換行變矮時，
+       剛落地的區塊會夠不到判定線、高亮停在上一節 */
+    var pad=(nv&&nv.offsetHeight?nv.offsetHeight:0)+18;
     var y=window.scrollY+pad,idx=-1,bestTop=-Infinity;
     secs.forEach(function(s,i){
       if(!s) return;
