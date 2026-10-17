@@ -23018,16 +23018,65 @@ function tocSetOpen(o,save){
 
 function tocToggle(){ tocSetOpen(!document.body.classList.contains('toc-open'),true); }
 
-/* 平滑跳轉（考慮 sticky nav 高度） */
-function tocGo(sel){
+/* ===== 通用跳轉：兼容 iframe / 外層滾動容器環境 ===== */
+/* 找出真正可滾動的容器：優先本頁 window；若本頁不可滾動（例如頁面被嵌入
+   自適應高度的 iframe、由外層文檔滾動），則嘗試同源父頁面中找到滾動元素 */
+function wbScrollRoot(){
+  var se=document.scrollingElement||document.documentElement;
+  if(se && se.scrollHeight-se.clientHeight>4) return {win:true, el:null, doc:document};
+  try{
+    if(window.frameElement){
+      var d=window.frameElement.ownerDocument;
+      var dd=d.scrollingElement||d.documentElement;
+      if(dd && dd.scrollHeight-dd.clientHeight>4) return {win:false, el:dd, doc:d};
+      var all=d.querySelectorAll('*');
+      for(var i=0;i<all.length;i++){
+        var s=all[i];
+        if(s.scrollHeight-s.clientHeight>4){
+          var cs=d.defaultView.getComputedStyle(s);
+          if(cs.overflowY==='auto'||cs.overflowY==='scroll') return {win:false, el:s, doc:d};
+        }
+      }
+      return {win:false, el:dd, doc:d};
+    }
+  }catch(e){}
+  return {win:true, el:null, doc:document};
+}
+
+function wbSmartGo(sel){
   var el=document.querySelector(sel);
   if(!el) return false;
-  var nav=document.querySelector('nav.sticky');
-  var off=(nav?nav.offsetHeight:0)+16;
-  var y=el.getBoundingClientRect().top+window.scrollY-off;
-  window.scrollTo({ top:Math.max(0,y), behavior:'smooth' });
+  var root=wbScrollRoot();
+  function targetY(){
+    var nav=document.querySelector('nav.sticky');
+    var off=(nav?nav.offsetHeight:0)+16;
+    if(root.win) return Math.max(0, el.getBoundingClientRect().top+(window.scrollY||0)-off);
+    var rr=root.el.getBoundingClientRect();
+    return Math.max(0, root.el.scrollTop+el.getBoundingClientRect().top-rr.top-off);
+  }
+  function apply(y,smooth){
+    try{
+      if(root.win) window.scrollTo({top:y, behavior:smooth?'smooth':'auto'});
+      else if(root.el.scrollTo) root.el.scrollTo({top:y, behavior:smooth?'smooth':'auto'});
+      else root.el.scrollTop=y;
+    }catch(e){ try{ el.scrollIntoView({behavior:smooth?'smooth':'auto', block:'start'}); }catch(e2){} }
+  }
+  apply(targetY(), true);
+  /* 二次校正：平滑滾動期間版面可能變化（圖片載入/摺疊展開），落定後再對齊一次 */
+  var tries=0;
+  (function correct(){
+    setTimeout(function(){
+      var y=targetY();
+      var cur=root.win?(window.scrollY||0):root.el.scrollTop;
+      if(Math.abs(cur-y)>3){ apply(y, Math.abs(cur-y)>300); }
+      if(++tries<4 && Math.abs((root.win?(window.scrollY||0):root.el.scrollTop)-targetY())>3) correct();
+    }, 600);
+  })();
   return true;
 }
+
+/* 平滑跳轉（考慮 sticky nav 高度）— 保留舊名供既有調用 */
+function tocGo(sel){ return wbSmartGo(sel); }
 
 /* 高亮 + 進度條；在既有 scrollSpy 之外獨立運作 */
 function scrollSpy2(){
@@ -23120,6 +23169,14 @@ function initToc(){
 function scrollSpy(){
   var links=[].slice.call(document.querySelectorAll('#navInner a'));
   var secs=links.map(function(a){ return document.querySelector(a.getAttribute('href')); });
+  /* 攔截頂部導航點擊：iframe / srcdoc 等環境下原生 #hash 跳轉可能失效，改走程式化滾動 */
+  var navBox=document.getElementById('navInner');
+  if(navBox) navBox.addEventListener('click',function(e){
+    var a=e.target&&e.target.closest?e.target.closest('a[href^="#"]'):null;
+    if(!a) return;
+    e.preventDefault();
+    wbSmartGo(a.getAttribute('href'));
+  });
   function on(){
     var y=window.scrollY+140,idx=-1;
     secs.forEach(function(s,i){ if(s&&s.offsetTop<=y) idx=i; });
