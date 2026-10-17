@@ -1530,6 +1530,15 @@ body.toc-open #tocScrim{opacity:1;pointer-events:auto}
   .toc-link{font-size:12.5px;padding:6px 8px}
 }
 
+/* 跳轉落點高亮：讓用戶一眼確認「已經到這一節」 */
+@keyframes wbFlashPulse{
+  0%   {box-shadow:0 0 0 0 rgba(47,196,160,.55)}
+  55%  {box-shadow:0 0 0 10px rgba(47,196,160,0)}
+  100% {box-shadow:0 0 0 0 rgba(47,196,160,0)}
+}
+.wb-flash{animation:wbFlashPulse 1.5s ease-out 1;border-radius:18px}
+@media (prefers-reduced-motion: reduce){ .wb-flash{animation:none} }
+
 /* 收合式長節（音節全表 / 錯誤對照 / 發音要領 / 資源總覽） */
 .wrap.collapsible > section.lesson{margin:40px 0}
 .cf-bar{display:flex;align-items:center;gap:14px;margin:18px 0 0;padding:12px 16px;border-radius:14px;
@@ -23018,60 +23027,68 @@ function tocSetOpen(o,save){
 
 function tocToggle(){ tocSetOpen(!document.body.classList.contains('toc-open'),true); }
 
-/* ===== 通用跳轉：兼容 iframe / 外層滾動容器環境 ===== */
-/* 找出真正可滾動的容器：優先本頁 window；若本頁不可滾動（例如頁面被嵌入
-   自適應高度的 iframe、由外層文檔滾動），則嘗試同源父頁面中找到滾動元素 */
-function wbScrollRoot(){
-  var se=document.scrollingElement||document.documentElement;
-  if(se && se.scrollHeight-se.clientHeight>4) return {win:true, el:null, doc:document};
+/* ===== 通用跳轉：以 scrollIntoView 為主，兼容 iframe / 縮放 / 外層滾動容器 ===== */
+/* 導航條高度（用於補償 scrollIntoView 不認 sticky 的偏移） */
+function wbNavOffset(){
+  var nav=document.querySelector('nav.sticky');
+  return (nav&&nav.offsetHeight?nav.offsetHeight:0)+16;
+}
+
+/* 目標區塊短暫高亮：落點若有偏差，用戶也能立刻確認「已經到這一節」 */
+function wbFlash(el){
+  if(!el) return;
   try{
-    if(window.frameElement){
-      var d=window.frameElement.ownerDocument;
-      var dd=d.scrollingElement||d.documentElement;
-      if(dd && dd.scrollHeight-dd.clientHeight>4) return {win:false, el:dd, doc:d};
-      var all=d.querySelectorAll('*');
-      for(var i=0;i<all.length;i++){
-        var s=all[i];
-        if(s.scrollHeight-s.clientHeight>4){
-          var cs=d.defaultView.getComputedStyle(s);
-          if(cs.overflowY==='auto'||cs.overflowY==='scroll') return {win:false, el:s, doc:d};
-        }
-      }
-      return {win:false, el:dd, doc:d};
-    }
+    el.classList.remove('wb-flash');
+    void el.offsetWidth;                 /* 重置動畫 */
+    el.classList.add('wb-flash');
+    setTimeout(function(){ el.classList.remove('wb-flash'); },1600);
   }catch(e){}
-  return {win:true, el:null, doc:document};
+}
+
+/* 是否已對齊：目標頂端落在 [0, 視窗高*0.5] 內即視為到達（容忍底部不可滾的情況） */
+function wbAligned(el,off){
+  var top=el.getBoundingClientRect().top;
+  var vh=window.innerHeight||document.documentElement.clientHeight;
+  if(top>=off-40 && top<=off+80) return true;
+  /* 已滾到底部時無法再對齊，也算到達 */
+  var se=document.scrollingElement||document.documentElement;
+  if(se && se.scrollTop+se.clientHeight>=se.scrollHeight-4) return true;
+  return top>=0 && top<vh*0.6;
 }
 
 function wbSmartGo(sel){
   var el=document.querySelector(sel);
   if(!el) return false;
-  var root=wbScrollRoot();
-  function targetY(){
-    var nav=document.querySelector('nav.sticky');
-    var off=(nav?nav.offsetHeight:0)+16;
-    if(root.win) return Math.max(0, el.getBoundingClientRect().top+(window.scrollY||0)-off);
-    var rr=root.el.getBoundingClientRect();
-    return Math.max(0, root.el.scrollTop+el.getBoundingClientRect().top-rr.top-off);
+  var off=wbNavOffset();
+  wbFlash(el);
+
+  /* 主路徑：原生 scrollIntoView。它由瀏覽器自己決定滾哪一層容器，
+     iframe / 外層滾動 / 頁面縮放 等情況都能正確處理。 */
+  try{
+    el.scrollIntoView({behavior:'smooth', block:'start', inline:'nearest'});
+  }catch(e){
+    try{ el.scrollIntoView(true); }catch(e2){}
   }
-  function apply(y,smooth){
-    try{
-      if(root.win) window.scrollTo({top:y, behavior:smooth?'smooth':'auto'});
-      else if(root.el.scrollTo) root.el.scrollTo({top:y, behavior:smooth?'smooth':'auto'});
-      else root.el.scrollTop=y;
-    }catch(e){ try{ el.scrollIntoView({behavior:smooth?'smooth':'auto', block:'start'}); }catch(e2){} }
+
+  /* 校正迴圈：scrollIntoView 不認識 sticky 導航高度，落定後把多滾的那段補回來；
+     同時應對圖片載入 / 摺疊展開造成的版面漂移。 */
+  var tries=0, raf=null;
+  function correct(){
+    raf=setTimeout(function(){
+      var top=el.getBoundingClientRect().top;
+      var delta=top-off;                       /* >0 表示目標在導航下方太遠，需再往下滾 */
+      if(Math.abs(delta)>8 && !wbAligned(el,off)){
+        try{ window.scrollBy({top:delta, behavior:'smooth'}); }catch(e){ window.scrollBy(0,delta); }
+      }
+      if(++tries<6) correct();
+    },420);
   }
-  apply(targetY(), true);
-  /* 二次校正：平滑滾動期間版面可能變化（圖片載入/摺疊展開），落定後再對齊一次 */
-  var tries=0;
-  (function correct(){
-    setTimeout(function(){
-      var y=targetY();
-      var cur=root.win?(window.scrollY||0):root.el.scrollTop;
-      if(Math.abs(cur-y)>3){ apply(y, Math.abs(cur-y)>300); }
-      if(++tries<4 && Math.abs((root.win?(window.scrollY||0):root.el.scrollTop)-targetY())>3) correct();
-    }, 600);
-  })();
+  correct();
+
+  /* 記錄目前定位，供 hash 同步與返回時使用 */
+  try{
+    if(history&&history.replaceState) history.replaceState(null,'',sel);
+  }catch(e){}
   return true;
 }
 
@@ -23130,17 +23147,31 @@ function bindToc(){
   if(close) close.addEventListener('click',function(){ tocSetOpen(false,true); });
   if(scrim) scrim.addEventListener('click',function(){ tocSetOpen(false,true); });
   if(top) top.addEventListener('click',function(){
-    window.scrollTo({top:0,behavior:'smooth'});
-    if(window.innerWidth<1280) tocSetOpen(false,true);
+    if(window.innerWidth<1280){
+      tocSetOpen(false,true);
+      setTimeout(function(){ window.scrollTo({top:0,behavior:'smooth'}); },60);
+    }else{
+      window.scrollTo({top:0,behavior:'smooth'});
+    }
   });
 
   // 目錄連結：平滑跳轉 + 窄屏自動收起
+  // 注意順序：先收起抽屜（解除 body.toc-open 的 overflow:hidden）再滾動。
+  // 若先滾動再收起，解除鎖定會引發版面重排，把平滑滾動打斷 → 停到錯誤位置。
   var body=document.getElementById('tocBody');
   if(body) body.addEventListener('click',function(e){
     var a=e.target.closest?e.target.closest('.toc-link'):null;
     if(!a) return;
     e.preventDefault();
-    if(tocGo(a.getAttribute('href')) && window.innerWidth<1280) tocSetOpen(false,true);
+    var href=a.getAttribute('href');
+    var narrow=window.innerWidth<1280;
+    if(narrow){
+      tocSetOpen(false,true);
+      /* 等抽屜的 transform 過場與滾動條恢復完成，再開始滾動 */
+      setTimeout(function(){ tocGo(href); }, 60);
+    }else{
+      tocGo(href);
+    }
   });
 
   // Esc 關閉
