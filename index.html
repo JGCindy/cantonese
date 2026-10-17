@@ -613,6 +613,20 @@ section.lesson{margin:56px 0;scroll-margin-top:78px}
 .pt-svg{width:100%;height:150px;display:block}
 .pt-verdict{font-size:12.5px;font-weight:800;margin-top:8px;line-height:1.6;color:var(--ink-2)}
 .pt-verdict b{color:var(--mint-2)}
+
+/* ---- 語音轉寫評分（Web Speech API · zh-HK） ---- */
+.asr-wrap{margin-top:12px;border:1px solid var(--line);border-radius:12px;background:var(--surface);padding:12px 13px;display:none}
+.asr-wrap.on{display:block}
+.asr-head{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:800;color:var(--ink-3);margin-bottom:8px;flex-wrap:wrap}
+.asr-head .big{margin-left:auto;font-size:15px;font-weight:800;color:var(--ink-2);letter-spacing:.3px}
+.asr-head .big.good{color:var(--mint-2)}
+.asr-head .big.mid{color:#b4762a}
+.asr-head .big.bad{color:var(--danger-ink,#c0402d)}
+.asr-heard{font-size:13.5px;line-height:1.7;color:var(--ink);background:var(--surface-2);border-radius:9px;padding:9px 11px;min-height:38px}
+.asr-heard .ph{color:var(--ink-3);font-weight:700}
+.asr-heard .ok{color:var(--mint-2);font-weight:800;background:var(--mint-soft);border-radius:4px;padding:0 2px}
+.asr-heard .miss{color:var(--danger-ink,#c0402d);font-weight:800;background:var(--coral-soft);border-radius:4px;padding:0 2px}
+.asr-foot{font-size:11.5px;line-height:1.6;color:var(--ink-3);margin-top:8px}
 @media (max-width:640px){
   .fc-yue{font-size:24px}.focus-card{padding:18px 16px 20px;border-radius:18px}
   .fc-tools button{padding:9px 12px;font-size:13px}
@@ -1885,6 +1899,19 @@ body.dock-lift .dock-stack{transform:translateY(calc(-1 * var(--dock-h,68px)))}
         <div class="pt-verdict" id="ptVerdict">錄一段話，這裡會畫出你的音高輪廓，和示範並排對比。</div>
       </div>
       <div class="rec-note warn" id="recNote" style="display:none"></div>
+
+      <div class="asr-wrap" id="asrWrap">
+        <div class="asr-head">
+          <span>語音轉寫（Web Speech API · zh-HK）</span>
+          <span class="big" id="asrScore">—</span>
+        </div>
+        <div class="asr-heard" id="asrHeard"><span class="ph">錄音時會同時做語音識別，這裡顯示瀏覽器「聽成了什麼字」。</span></div>
+        <div class="asr-foot" id="asrFoot">
+          只做事後文字比對：<b>講對字</b>才得分，<b>聲調錯了照樣得滿分</b>（轉成文字後聲調資訊就丟了）。
+          所以請以曲線為準，這裡只當「有沒有念成別的字」的參考。
+        </div>
+      </div>
+
       <div class="rec-note" id="recHelp">
         錄完可以和示範音 A/B 對比。聲調判斷靠上方曲線——<b>粵語的六個聲調就是六條不同的音高走勢</b>，
         這比「把話轉成文字再比對」可靠得多（轉成文字後聲調資訊就沒了）。
@@ -2858,6 +2885,9 @@ async function recStart(){
   };
   REC.mr.start(150);
   REC.t0=Date.now();
+  // 並行啟動語音識別（Web Speech API · zh-HK）：和錄音各走各的通道，
+  // 識別失敗不影響錄音與音高曲線
+  try{ asrStart(); }catch(e){}
   document.getElementById('recStart').classList.add('on');
   document.getElementById('recStart').disabled=true;
   document.getElementById('recStop').disabled=false;
@@ -2963,6 +2993,8 @@ function recStop(){
   if(REC.raf){ cancelAnimationFrame(REC.raf); REC.raf=0; }
   REC.analyser=null;
   if(REC.mr&&REC.mr.state!=='inactive'){ try{ REC.mr.stop(); }catch(e){} }
+  // 停止時把語音識別一併收尾：讓瀏覽器把最後一段結果吐出來（onend 裡才評分）
+  try{ asrStop(); }catch(e){}
   var a=document.getElementById('recStart'), b=document.getElementById('recStop');
   if(a){ a.classList.remove('on'); a.disabled=false; }
   if(b) b.disabled=true;
@@ -2972,6 +3004,160 @@ function recAB(){
   fcsSpeak(FCS.rate);
   var wait=Math.max(1300,String(line[0]).length*400);
   setTimeout(function(){ if(REC.url) new Audio(REC.url).play(); },wait);
+}
+
+/* ==================== 語音轉寫評分（Web Speech API · zh-HK） ====================
+   參考 cantonese-course 的「錄音 → 轉文字 → 比對」流程，如實保留它的定位：
+   這只做事後**文字集合比對**，判不出聲調，也判不出發音細節，
+   所以放在音高曲線之下、只當輔助參考，UI 上明確寫清楚。 */
+var ASR={api:null,rec:null,on:false,transcript:'',err:'',finalized:false};
+
+function asrSupported(){
+  return !!(window.SpeechRecognition||window.webkitSpeechRecognition);
+}
+function asrGetAPI(){
+  return window.SpeechRecognition||window.webkitSpeechRecognition||null;
+}
+function asrReset(){
+  ASR.on=false; ASR.transcript=''; ASR.err=''; ASR.finalized=false;
+  var w=document.getElementById('asrWrap'); if(w) w.classList.remove('on');
+  var s=document.getElementById('asrScore'); if(s){ s.textContent='—'; s.className='big'; }
+  var h=document.getElementById('asrHeard');
+  if(h) h.innerHTML='<span class="ph">錄音時會同時做語音識別，這裡顯示瀏覽器「聽成了什麼字」。</span>';
+  var f=document.getElementById('asrFoot');
+  if(f) f.innerHTML='只做事後文字比對：<b>講對字</b>才得分，<b>聲調錯了照樣得滿分</b>（轉成文字後聲調資訊就丟了）。所以請以曲線為準，這裡只當「有沒有念成別的字」的參考。';
+}
+/* 純文字集合比對：把目標句裡的漢字逐個在聽到的轉寫裡找（可重複的字各算一次） */
+function scoreTranscript(transcript,target){
+  var heard=String(transcript||'').toLowerCase();
+  var chars=(String(target||'').match(/[\u3400-\u9fff]/g)||[]);
+  if(chars.length){
+    var pool=heard.split('');
+    var hit=0;
+    chars.forEach(function(ch){
+      var k=pool.indexOf(ch);
+      if(k>=0){ hit++; pool.splice(k,1); }
+    });
+    return Math.round(hit/chars.length*100);
+  }
+  // 目標句沒有漢字時，退化成粵拼 token 比對
+  var tgt=(String(target||'').toLowerCase().match(/[a-z]+[1-6]?/g)||[]);
+  var hd=heard.match(/[a-z]+[1-6]?/g)||[];
+  if(!tgt.length) return 0;
+  return Math.round(tgt.filter(function(t){ return hd.indexOf(t)>=0; }).length/tgt.length*100);
+}
+function asrStart(){
+  asrReset();
+  if(!asrSupported()){ return; }
+  if(!recSecure()){ return; }
+  var API=asrGetAPI(); if(!API) return;
+  var w=document.getElementById('asrWrap'); if(w) w.classList.add('on');
+  var h=document.getElementById('asrHeard');
+  if(h) h.innerHTML='<span class="ph">正在聽…請把這句念完。</span>';
+  try{
+    var rec=new API();
+    rec.lang='zh-HK';
+    rec.continuous=true;
+    rec.interimResults=false;
+    rec.maxAlternatives=1;
+    rec.onresult=function(e){
+      var txt='';
+      for(var i=0;i<e.results.length;i++){
+        if(e.results[i].isFinal){
+          txt+=e.results[i][0].transcript;
+        }
+      }
+      if(txt){ ASR.transcript=txt; asrPaintInterim(txt); }
+    };
+    rec.onerror=function(e){
+      ASR.err=e.error||'unknown';
+      if(ASR.err==='not-allowed'||ASR.err==='service-not-allowed'){
+        asrFail('瀏覽器沒有授權語音識別（或該語言服務不可用）。這個功能需要連網，且部分瀏覽器不含粵語識別引擎。');
+      }else if(ASR.err==='no-speech'){
+        asrFail('沒聽到語音。靠近麥克風、正常音量再錄一次。');
+      }else if(ASR.err==='network'){
+        asrFail('語音識別服務連不上（需要網路）。曲線不受影響。');
+      }else if(ASR.err==='language-not-supported'){
+        asrFail('這個瀏覽器不支援粵語（zh-HK）識別。Chrome / Edge 桌上版通常可用。');
+      }else if(ASR.err==='aborted'){
+        /* 主動停止，忽略 */
+      }else{
+        asrFail('語音識別出錯（'+ASR.err+'）。曲線不受影響。');
+      }
+    };
+    rec.onend=function(){
+      ASR.on=false;
+      ASR.finalized=true;
+      asrFinish();
+    };
+    ASR.rec=rec;
+    ASR.on=true;
+    rec.start();
+  }catch(e){
+    ASR.err=(e&&e.message)||'start-failed';
+    asrFail('語音識別啟動失敗：'+ASR.err);
+  }
+}
+function asrStop(){
+  if(ASR.rec&&ASR.on){
+    try{ ASR.rec.stop(); }catch(e){ try{ ASR.rec.abort(); }catch(e2){} }
+  }
+}
+function asrFail(msg){
+  ASR.on=false;
+  var w=document.getElementById('asrWrap'); if(w) w.classList.add('on');
+  var s=document.getElementById('asrScore'); if(s){ s.textContent='—'; s.className='big'; }
+  var h=document.getElementById('asrHeard');
+  if(h) h.innerHTML='<span class="ph">'+msg+'</span>';
+}
+function asrPaintInterim(txt){
+  var h=document.getElementById('asrHeard');
+  if(!h) return;
+  h.innerHTML='<span class="ph">聽到：</span>'+escHtml(txt);
+}
+function asrFinish(){
+  var s=SCENES[FCS.i]; if(!s) return;
+  var line=s.lines[FCS.j]; if(!line) return;
+  var target=String(line[0]||'');
+  var w=document.getElementById('asrWrap'); if(w) w.classList.add('on');
+  var h=document.getElementById('asrHeard');
+  var sc=document.getElementById('asrScore');
+  if(!ASR.transcript){
+    if(h) h.innerHTML='<span class="ph">'+(ASR.err?'識別未成功，可以再錄一次。':'沒轉出文字（可能是環境太吵、太小聲，或這個瀏覽器缺粵語識別引擎）。')+'</span>';
+    if(sc){ sc.textContent='—'; sc.className='big'; }
+    return;
+  }
+  var score=scoreTranscript(ASR.transcript,target);
+  if(sc){
+    sc.textContent=score+'%';
+    sc.className='big'+(score>=80?' good':(score>=50?' mid':' bad'));
+  }
+  // 逐字標出「念到了 / 沒念到」
+  var pool=ASR.transcript.split('');
+  var html='<span class="ph">聽到：</span>';
+  var charList=target.match(/[\u3400-\u9fff]/g)||[];
+  var rest=ASR.transcript;
+  var marks=[];
+  charList.forEach(function(ch){
+    var k=rest.indexOf(ch);
+    if(k>=0){ marks.push(1); rest=rest.slice(0,k)+'\u0000'+rest.slice(k+1); }
+    else marks.push(0);
+  });
+  html+=escHtml(ASR.transcript);
+  if(charList.length){
+    var line2='<div style="margin-top:6px;font-size:12.5px;line-height:1.9"><span class="ph">對照：</span>';
+    charList.forEach(function(ch,idx){
+      line2+='<span class="'+(marks[idx]?'ok':'miss')+'" title="'+(marks[idx]?'有念到':'沒念到')+'">'+escHtml(ch)+'</span> ';
+    });
+    line2+='</div>';
+    html+=line2;
+  }
+  if(h) h.innerHTML=html;
+}
+function escHtml(s){
+  return String(s).replace(/[&<>"']/g,function(c){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+  });
 }
 
 /* ==================== 專注練一句 ====================
@@ -3045,6 +3231,7 @@ function fcsRender(){
   if(vd) vd.textContent='錄一段話，這裡會畫出你的音高輪廓，和示範並排對比。';
   ['recPlay','recAB'].forEach(function(id){ var b=document.getElementById(id); if(b) b.disabled=true; });
   if(typeof recSetStatus==='function') recSetStatus('未錄音');
+  if(typeof asrReset==='function') asrReset();
   if(typeof recDemoTrace==='function') recDemoTrace();
 
 }
@@ -3149,6 +3336,11 @@ function initFocusCard(){
   document.getElementById('recAB').addEventListener('click',recAB);
   if(!recSecure()){
     recNote('目前是 file:// 打開，瀏覽器不會授權麥克風（安全限制）。想看錄音與音高曲線，請用 HTTPS 或 localhost 打開；其餘功能不受影響。');
+  }else if(!asrSupported()){
+    var f=document.getElementById('asrFoot');
+    if(f) f.innerHTML='這個瀏覽器沒有語音識別介面（Web Speech API），轉寫評分用不了。桌機版 Chrome / Edge 通常支援；曲線不受影響。';
+  }else{
+    var dw=document.getElementById('asrWrap'); if(dw) dw.classList.add('on');
   }
 
   FCS.wrap.addEventListener('click',function(e){ if(e.target===FCS.wrap) fcsClose(); });
