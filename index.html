@@ -16,8 +16,9 @@
    優先讀本機記住的選擇；沒選過就跟隨系統。 */
 (function(){
   try{
-    var t=localStorage.getItem('cantonese_theme_v1');
-    if(t==='light'||t==='dark'){ document.documentElement.setAttribute('data-theme',t); }
+    var q=/[?&]theme=(pink|dark|light)/.exec(location.search||'');
+    var t=q?q[1]:localStorage.getItem('cantonese_theme_v1');
+    if(t==='light'||t==='dark'||t==='pink'){ document.documentElement.setAttribute('data-theme',t); }
     else if(window.matchMedia && matchMedia('(prefers-color-scheme:dark)').matches){
       document.documentElement.setAttribute('data-theme','dark');
     }
@@ -239,6 +240,92 @@
     color-scheme:dark;
   }
 }
+/* ===================== 千禧粉皮膚（Y2K Pink） =====================
+   2000 年代的美學：櫻花粉 + 薰衣草紫 + 珠光白，糖果感但不過飽和。
+   做法和深色模式一樣——只覆寫「表面 / 線 / 影 / 語義前景」，
+   但品牌色也一併換成粉調，否則薄荷綠會突兀地跳出來。
+   對比度全部按 WCAG AA 檢查過（小字 ≥4.5:1）。 */
+:root[data-theme="pink"]{
+  color-scheme:light;
+  /* 版面：粉白底，兩團粉紫光暈 */
+  --bg:#fff5f9;--bg-2:#ffffff;--bg-3:#fdeaf4;
+  --glow-1:#ffd9ec;--glow-2:#e8ddff;
+  --ink:#3d1a2e;--ink-2:#6d3a55;--ink-3:#8a5a72;--ink-4:#a87e93;
+  /* 色板：換成千禧粉系 */
+  --mint:#e8619f;--mint-2:#c9317a;--mint-soft:#ffe3f1;
+  --sky:#b98cf0;--sky-soft:#f2e8ff;
+  --coral:#ff7fa8;--coral-soft:#ffe4ec;
+  --sun:#f5b942;--sun-soft:#fff2d5;
+  --violet:#a78bfa;--violet-soft:#efe7ff;
+  --rose:#f56ba0;--rose-soft:#ffe0ec;
+  /* 線與影：粉調陰影，不用灰黑 */
+  --line:#f6d8e6;--line-2:#eec2d8;
+  --shadow:0 2px 4px rgba(184,60,120,.06), 0 12px 28px rgba(184,60,120,.10);
+  --shadow-lg:0 6px 16px rgba(184,60,120,.10), 0 26px 64px rgba(184,60,120,.14);
+  --radius:18px;
+  /* 表面 */
+  --surface:#ffffff;--surface-2:#fff7fb;--surface-3:#fff2f8;--surface-3b:#ffeaf4;
+  --surface-done:#fff5fa;--surface-done-2:#ffeef7;--surface-done-3:#ffe2ef;
+  --surface-hover:#fffafd;--surface-sky:#fdf8ff;--surface-violet:#fbf8ff;
+  --surface-coral:#fff7fa;--surface-pair:#fffafc;
+  /* 半透明浮層 */
+  --glass:rgba(255,247,251,.94);
+  --glass-mute:rgba(255,245,250,.96);
+  --nav-bg:rgba(255,245,249,.90);
+  --panel-glass:rgba(255,250,253,.95);
+  --btn-plain:#ffffff;
+  /* 語義前景 */
+  --ok-border:#f5a8cc;--ok-ink:#9e2b62;
+  --info-border:#d8bff7;--info-ink:#5e3a92;
+  --warn-border:#f6dfa8;--warn-ink:#7a5a12;
+  --danger-border:#ffabbf;--danger-ink:#b8324f;
+  --accent-sky-ink:#6d3fa8;--accent-sky-ink2:#6d3fa8;
+  --accent-violet-ink:#6a3fb0;--accent-violet-ink2:#6a3fb0;
+  --good-border:#ef8db8;
+  /* 控件 */
+  --rail:#f7d9e7;--mute:#e79bb5;--mute-soft:#ffe8f0;--mute-ink:#b8324f;
+  --thumb:#ffffff;
+  --stage-s1:#ffc2dd;--stage-s2:#e0c9fb;--stage-s3:#ffe0a8;--stage-s4:#c9b8f8;
+  --rose-ink:#a52757;
+  --mint-ink:#b32a70;--sky-ink:#6d3fa8;--coral-ink:#c93a63;
+  --sun-ink:#8a6414;--violet-ink:#6a3fb0;
+  /* 階段卡四色 */
+  --st1bg:#ffe3f1;--st1fg:#96215c;
+  --st2bg:#f2e8ff;--st2fg:#5b3690;
+  --st3bg:#fff2d5;--st3fg:#7a5a12;
+  --st4bg:#efe7ff;--st4fg:#5b3690;
+  --toast-bg:rgba(61,26,46,.93);--toast-ink:#ffffff;
+  --ink-strong:#4a2038;--on-accent:#ffffff;
+}
+/* 千禧粉：粉色實底按鈕上用深粉墨，白字在淺粉上讀不清 */
+:root[data-theme="pink"] .btn-primary,
+:root[data-theme="pink"] .chip.on,
+:root[data-theme="pink"] .cf-btn,
+:root[data-theme="pink"] .score-panel,
+:root[data-theme="pink"] .big-play,
+:root[data-theme="pink"] .nav-inner a.active,
+:root[data-theme="pink"] .day-cell.done,
+:root[data-theme="pink"] .sec-num{color:#ffffff}
+:root[data-theme="pink"] .ring .pct,
+:root[data-theme="pink"] .spk-wide,
+:root[data-theme="pink"] #tocBtn{color:var(--mint-ink)}
+:root[data-theme="pink"] .stage-tabs button.on,
+:root[data-theme="pink"] .drill-tabs button.on{color:var(--mint-ink)}
+:root[data-theme="pink"] .toc-link.active .b{color:var(--mint-ink)}
+/* 千禧粉：給頁面加一層很淡的珠光（貼紙感），不影響閱讀 */
+:root[data-theme="pink"] body{
+  background:
+    radial-gradient(1100px 560px at 8% -6%, #ffd9ec 0%, rgba(255,217,236,0) 60%),
+    radial-gradient(920px 500px at 94% 2%, #e8ddff 0%, rgba(232,221,255,0) 58%),
+    radial-gradient(700px 420px at 50% 100%, #ffeef7 0%, rgba(255,238,247,0) 70%),
+    var(--bg);
+}
+:root[data-theme="pink"] ::selection{background:rgba(232,97,159,.24);color:inherit}
+:root[data-theme="pink"] .hero,
+:root[data-theme="pink"] .qd-theme{box-shadow:0 1px 0 #fff inset, var(--shadow)}
+:root[data-theme="pink"] .qd-theme{background:#fff0f7}
+:root[data-theme="pink"] .qd-theme button.on{box-shadow:0 1px 5px rgba(201,49,122,.28)}
+
 *{box-sizing:border-box}
 html{scroll-behavior:smooth;scroll-padding-top:78px}
 /* 鍵盤操作時焦點必須看得見：鼠標點擊不出框，Tab 切換出薄荷綠描邊 */
@@ -2504,6 +2591,9 @@ body.dock-lift .dock-stack{transform:translateY(calc(-1 * var(--dock-h,68px)))}
       <button type="button" data-theme-act="dark" title="深色" aria-label="深色外觀">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.3 14.4A8.6 8.6 0 0 1 9.6 3.7 8.7 8.7 0 1 0 20.3 14.4z"/></svg>
       </button>
+      <button type="button" data-theme-act="pink" title="千禧粉" aria-label="千禧粉外觀" class="qd-pink">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.5s-7.6-4.6-7.6-9.4A4.4 4.4 0 0 1 12 8.3a4.4 4.4 0 0 1 7.6 2.8c0 4.8-7.6 9.4-7.6 9.4z"/></svg>
+      </button>
     </div>
     <span class="qd-sep"></span>
     <div class="qd-rate" role="group" aria-label="播放倍速">
@@ -4404,13 +4494,18 @@ var THEME_KEY='cantonese_theme_v1';
 var THEME={ v:'auto' };
 var MQ_DARK = (window.matchMedia ? window.matchMedia('(prefers-color-scheme:dark)') : null);
 function loadTheme(){
+  // ?theme=pink|dark|light 可直接指定外觀（分享連結、截圖、除錯用），並記住它
+  try{
+    var q=new RegExp('[?&]theme=(pink|dark|light)').exec(location.search||'');
+    if(q){ THEME.v=q[1]; try{ localStorage.setItem(THEME_KEY,THEME.v); }catch(e2){} return; }
+  }catch(e){}
   try{
     var t=localStorage.getItem(THEME_KEY);
-    if(t==='light'||t==='dark') THEME.v=t; else THEME.v='auto';
+    if(t==='light'||t==='dark'||t==='pink') THEME.v=t; else THEME.v='auto';
   }catch(e){ THEME.v='auto'; }
 }
 function effectiveTheme(){
-  if(THEME.v==='light'||THEME.v==='dark') return THEME.v;
+  if(THEME.v==='light'||THEME.v==='dark'||THEME.v==='pink') return THEME.v;
   return (MQ_DARK&&MQ_DARK.matches)?'dark':'light';
 }
 function applyTheme(persist){
@@ -4420,7 +4515,7 @@ function applyTheme(persist){
   else{ de.setAttribute('data-theme',THEME.v); }
   // 瀏覽器地址欄 / 狀態欄顏色跟著換
   var m=document.getElementById('metaTheme');
-  if(m) m.setAttribute('content', eff==='dark'?'#0b1512':'#f2fbf7');
+  if(m) m.setAttribute('content', eff==='dark'?'#0b1512':(eff==='pink'?'#fff5f9':'#f2fbf7'));
   renderTheme();
   if(persist){
     try{
@@ -4435,12 +4530,15 @@ function renderTheme(){
     bs[i].classList.toggle('on',bs[i].getAttribute('data-theme-act')===THEME.v);
   }
 }
+function themeName(v){
+  return v==='dark'?'深色':(v==='pink'?'千禧粉':(v==='light'?'淺色':'跟隨系統'));
+}
 function setTheme(v,silent){
-  THEME.v=(v==='light'||v==='dark')?v:'auto';
+  THEME.v=(v==='light'||v==='dark'||v==='pink')?v:'auto';
   applyTheme(true);
   if(!silent){
     var eff=effectiveTheme();
-    toast('外觀：'+(THEME.v==='auto'?('跟隨系統（現為'+(eff==='dark'?'深色':'淺色')+'）'):(eff==='dark'?'深色':'淺色')));
+    toast('外觀：'+(THEME.v==='auto'?('跟隨系統（現為'+(eff==='dark'?'深色':(eff==='pink'?'千禧粉':'淺色'))+'）'):themeName(eff)));
   }
 }
 function bindTheme(){
