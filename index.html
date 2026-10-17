@@ -13,15 +13,32 @@
 <meta name="mobile-web-app-capable" content="yes">
 <script>
 /* 主題引導：必須在任何樣式繪製前執行，否則深色下會先閃一下白底。
-   優先讀本機記住的選擇；沒選過就跟隨系統。 */
+   兩個維度：皮膚（green / pink）與明暗（light / dark / auto）。
+   html 屬性組合 →
+     清新綠·日間：無屬性　清新綠·夜間：data-theme="dark"
+     千禧粉·日間：data-theme="pink"　千禧粉·夜間：data-theme="pink" data-mode="dark"　*/
 (function(){
   try{
-    var q=/[?&]theme=(pink|dark|light)/.exec(location.search||'');
-    var t=q?q[1]:localStorage.getItem('cantonese_theme_v1');
-    if(t==='light'||t==='dark'||t==='pink'){ document.documentElement.setAttribute('data-theme',t); }
-    else if(window.matchMedia && matchMedia('(prefers-color-scheme:dark)').matches){
-      document.documentElement.setAttribute('data-theme','dark');
+    var s=location.search||'';
+    var skin=null, mode=null, m;
+    m=/[?&]skin=(pink|green)/.exec(s); if(m) skin=m[1];
+    m=/[?&]mode=(light|dark|auto)/.exec(s); if(m) mode=m[1];
+    m=/[?&]theme=(pink|dark|light)/.exec(s);
+    if(m){ if(m[1]==='pink'){ skin='pink'; mode=mode||'auto'; } else mode=mode||m[1]; }
+
+    if(!skin){ skin=localStorage.getItem('cantonese_skin_v1')||'green'; }
+    if(skin!=='pink') skin='green';
+    if(!mode){
+      mode=localStorage.getItem('cantonese_theme_v1')||'auto';
+      if(mode==='pink'){ skin='pink'; mode='auto'; }   // 舊版單鍵存的是 pink
+      if(mode!=='light'&&mode!=='dark') mode='auto';
     }
+    var eff = (mode==='light'||mode==='dark') ? mode
+            : ((window.matchMedia && matchMedia('(prefers-color-scheme:dark)').matches)?'dark':'light');
+    var de=document.documentElement;
+    if(skin==='pink') de.setAttribute('data-theme','pink');
+    else if(eff==='dark') de.setAttribute('data-theme','dark');
+    if(eff==='dark') de.setAttribute('data-mode','dark');
   }catch(e){}
 })();
 </script>
@@ -242,6 +259,7 @@
 }
 /* ===================== 千禧粉皮膚（Y2K Pink） =====================
    2000 年代的美學：櫻花粉 + 薰衣草紫 + 珠光白，糖果感但不過飽和。
+   分淺色 / 深色兩套：pink = 粉色淺色；pink + data-mode="dark" = 粉色夜間。
    做法和深色模式一樣——只覆寫「表面 / 線 / 影 / 語義前景」，
    但品牌色也一併換成粉調，否則薄荷綠會突兀地跳出來。
    對比度全部按 WCAG AA 檢查過（小字 ≥4.5:1）。 */
@@ -297,6 +315,60 @@
   --toast-bg:rgba(61,26,46,.93);--toast-ink:#ffffff;
   --ink-strong:#4a2038;--on-accent:#ffffff;
 }
+
+/* ============ 千禧粉 · 夜間模式 ============
+   深紫紅底（不是純黑，保留粉調），品牌色在暗底上提亮一檔，
+   避免淺粉直接壓在深底上糊成一片。 */
+:root[data-theme="pink"][data-mode="dark"]{
+  color-scheme:dark;
+  /* 版面：深莓紫底，暗處仍透粉紫光暈 */
+  --bg:#170e14;--bg-2:#211520;--bg-3:#2a1a27;
+  --glow-1:#3d1830;--glow-2:#2c1b44;
+  --ink:#fbe7f1;--ink-2:#e2bdd1;--ink-3:#c49fb3;--ink-4:#a8839a;
+  --line:#3a2233;--line-2:#4c2d42;
+  --shadow:0 2px 4px rgba(0,0,0,.30), 0 12px 28px rgba(0,0,0,.42);
+  --shadow-lg:0 6px 16px rgba(0,0,0,.36), 0 26px 64px rgba(0,0,0,.52);
+  /* 色板：暗底用的高亮粉 / 紫 */
+  --mint:#f06aa8;--mint-2:#d94b8f;--mint-soft:#3a1c2c;
+  --sky:#b28cf5;--sky-soft:#261c3f;
+  --coral:#ff86a6;--coral-soft:#3a1c26;
+  --sun:#e8b455;--sun-soft:#3a2d16;
+  --violet:#a98bf8;--violet-soft:#271f42;
+  --rose:#f77aa8;--rose-soft:#3b1e2c;
+  /* 表面 */
+  --surface:#211520;--surface-2:#261826;--surface-3:#241726;--surface-3b:#2e1d2d;
+  --surface-done:#261a26;--surface-done-2:#2d1c2b;--surface-done-3:#3a1f33;
+  --surface-hover:#2c1c29;--surface-sky:#231a33;--surface-violet:#251a3a;
+  --surface-coral:#2c1a22;--surface-pair:#241827;
+  /* 半透明浮層 */
+  --glass:rgba(33,21,32,.92);
+  --glass-mute:rgba(42,26,38,.94);
+  --nav-bg:rgba(23,14,20,.88);
+  --panel-glass:rgba(33,21,32,.95);
+  --btn-plain:#2b1c2a;
+  /* 語義前景 */
+  --ok-border:#7c3f60;--ok-ink:#f9a3c9;
+  --info-border:#5a3f80;--info-ink:#d6bcfb;
+  --warn-border:#6d5424;--warn-ink:#f6d79b;
+  --danger-border:#7d3648;--danger-ink:#ffb0c0;
+  --accent-sky-ink:#cfb0fb;--accent-sky-ink2:#cfb0fb;
+  --accent-violet-ink:#cbb4fa;--accent-violet-ink2:#cbb4fa;
+  --good-border:#8f4570;
+  /* 控件 */
+  --rail:#3d2637;--mute:#c9769a;--mute-soft:#3a1e2b;--mute-ink:#ffb3c4;
+  --thumb:#2b1c2a;
+  --stage-s1:#7c3f60;--stage-s2:#5a3f80;--stage-s3:#6d5424;--stage-s4:#4e3d7a;
+  --rose-ink:#fba7c8;
+  --mint-ink:#ff8fc0;--sky-ink:#c6a8fa;--coral-ink:#ff9db5;
+  --sun-ink:#f3cc8a;--violet-ink:#c6adfa;
+  /* 階段卡四色 */
+  --st1bg:#3a1c2c;--st1fg:#f9a8cd;
+  --st2bg:#271f42;--st2fg:#cfb4fb;
+  --st3bg:#3a2d16;--st3fg:#f6d79b;
+  --st4bg:#2b2148;--st4fg:#cbb4fa;
+  --toast-bg:rgba(251,231,241,.95);--toast-ink:#170e14;
+  --ink-strong:#2e1a28;--on-accent:#ffffff;
+}
 /* 千禧粉：粉色實底按鈕上用深粉墨，白字在淺粉上讀不清 */
 :root[data-theme="pink"] .btn-primary,
 :root[data-theme="pink"] .chip.on,
@@ -324,6 +396,51 @@
 :root[data-theme="pink"] .hero{box-shadow:0 1px 0 #fff inset, var(--shadow)}
 :root[data-theme="pink"] .qd-theme-menu{background:#fffafd}
 :root[data-theme="pink"] .qd-theme-menu button.on{box-shadow:0 1px 5px rgba(201,49,122,.18)}
+
+/* 千禧粉夜間：同上，但墨色改成深莓（品牌底更亮，白字會過曝） */
+:root[data-theme="pink"][data-mode="dark"] .btn-primary,
+:root[data-theme="pink"][data-mode="dark"] .chip.on,
+:root[data-theme="pink"][data-mode="dark"] .cf-btn,
+:root[data-theme="pink"][data-mode="dark"] .score-panel,
+:root[data-theme="pink"][data-mode="dark"] .big-play,
+:root[data-theme="pink"][data-mode="dark"] .nav-inner a.active,
+:root[data-theme="pink"][data-mode="dark"] .day-cell.done,
+:root[data-theme="pink"][data-mode="dark"] .sec-num,
+:root[data-theme="pink"][data-mode="dark"] .qd-go{color:#2a0f1d}
+:root[data-theme="pink"][data-mode="dark"] .spk:not(.spk-wide),
+:root[data-theme="pink"][data-mode="dark"] .wset-btn[data-wplay]{color:#2a0f1d}
+:root[data-theme="pink"][data-mode="dark"] .spk-wide{color:var(--mint-ink);border-color:var(--ok-border)}
+:root[data-theme="pink"][data-mode="dark"] .ring .pct,
+:root[data-theme="pink"][data-mode="dark"] .streak-box .n{color:var(--mint-ink)}
+:root[data-theme="pink"][data-mode="dark"] .spk:hover,
+:root[data-theme="pink"][data-mode="dark"] .spk.playing,
+:root[data-theme="pink"][data-mode="dark"] .drow .mini:hover,
+:root[data-theme="pink"][data-mode="dark"] .drow .mini.playing,
+:root[data-theme="pink"][data-mode="dark"] .vol-ico:hover,
+:root[data-theme="pink"][data-mode="dark"] #tocBtn:hover,
+:root[data-theme="pink"][data-mode="dark"] .toc-foot button:hover{color:#2a0f1d}
+:root[data-theme="pink"][data-mode="dark"] .card,
+:root[data-theme="pink"][data-mode="dark"] .scene,
+:root[data-theme="pink"][data-mode="dark"] .song,
+:root[data-theme="pink"][data-mode="dark"] .readcard,
+:root[data-theme="pink"][data-mode="dark"] .drill,
+:root[data-theme="pink"][data-mode="dark"] .progress-panel{box-shadow:none}
+:root[data-theme="pink"][data-mode="dark"] .score-panel button{color:#fbe7f1;border-color:rgba(255,255,255,.5)}
+:root[data-theme="pink"][data-mode="dark"] .score-panel button:hover{background:#fbe7f1;color:#211520}
+:root[data-theme="pink"][data-mode="dark"] .toast{background:var(--toast-bg);color:var(--toast-ink)}
+/* 千禧粉夜間：頁面珠光改成兩團暗粉紫光，靠上不刺眼 */
+:root[data-theme="pink"][data-mode="dark"] body{
+  background:
+    radial-gradient(1100px 560px at 8% -6%, #40182f 0%, rgba(64,24,47,0) 60%),
+    radial-gradient(920px 500px at 94% 2%, #2c1b44 0%, rgba(44,27,68,0) 58%),
+    radial-gradient(700px 420px at 50% 100%, #241420 0%, rgba(36,20,32,0) 70%),
+    var(--bg);
+}
+:root[data-theme="pink"][data-mode="dark"] ::selection{background:rgba(240,106,168,.34);color:inherit}
+:root[data-theme="pink"][data-mode="dark"] .hero{box-shadow:0 1px 0 rgba(255,255,255,.05) inset, var(--shadow)}
+:root[data-theme="pink"][data-mode="dark"] .qd-theme-menu{background:#251826}
+:root[data-theme="pink"][data-mode="dark"] .qd-theme-menu button.on{box-shadow:0 1px 5px rgba(0,0,0,.4)}
+:root[data-theme="pink"][data-mode="dark"] img{filter:brightness(.92)}
 
 *{box-sizing:border-box}
 html{scroll-behavior:smooth;scroll-padding-top:78px}
@@ -1472,6 +1589,11 @@ body.dock-lift .dock-stack{transform:translateY(calc(-1 * var(--dock-h,68px)))}
   cursor:pointer;font-family:inherit;font-size:12px;font-weight:800;transition:.15s;white-space:nowrap}
 .qd-theme-toggle:hover{border-color:var(--mint);color:var(--mint-2);background:var(--mint-soft)}
 .qd-theme-toggle svg{width:15px;height:15px;flex:none}
+/* 皮膚色點：一眼看出現在是綠還是粉 */
+.qd-theme-toggle .sw-dot{width:9px;height:9px;border-radius:50%;flex:none;
+  background:linear-gradient(135deg,#3ad6ae,#1f9d84);box-shadow:0 0 0 2px rgba(58,214,174,.18)}
+:root[data-theme="pink"] .qd-theme-toggle .sw-dot{background:linear-gradient(135deg,#f06aa8,#a78bfa);
+  box-shadow:0 0 0 2px rgba(232,97,159,.20)}
 .qd-theme-toggle .car{width:11px;height:11px;opacity:.65;transition:transform .18s}
 .qd-theme-wrap.open .qd-theme-toggle{border-color:var(--mint);color:var(--mint-2);background:var(--mint-soft)}
 .qd-theme-wrap.open .qd-theme-toggle .car{transform:rotate(180deg)}
@@ -1490,6 +1612,20 @@ body.dock-lift .dock-stack{transform:translateY(calc(-1 * var(--dock-h,68px)))}
 .qd-theme-menu button .ck{width:13px;height:13px;flex:none;opacity:0;color:var(--mint)}
 .qd-theme-menu button.on .ck{opacity:1}
 .qd-theme-menu .dsep{height:1px;margin:5px 8px;background:var(--line)}
+/* 面板分兩組：皮膚 / 明暗 */
+.qd-theme-menu .grp{padding:6px 10px 4px;font-size:11px;font-weight:800;color:var(--ink-4);letter-spacing:.04em}
+.qd-theme-menu .swatches{display:flex;gap:8px;padding:0 6px 8px}
+.qd-theme-menu .sw{flex:1;border:2px solid var(--line-2);border-radius:11px;background:transparent;
+  padding:0;cursor:pointer;font-family:inherit;overflow:hidden;transition:.15s;position:relative}
+.qd-theme-menu .sw:hover{border-color:var(--mint)}
+.qd-theme-menu .sw.on{border-color:var(--mint);box-shadow:0 0 0 3px var(--mint-soft)}
+.qd-theme-menu .sw .sp{display:block;height:30px;background:linear-gradient(135deg,#3ad6ae,#eaf7f2 62%)}
+.qd-theme-menu .sw.pk .sp{background:linear-gradient(135deg,#e8619f,#fff5f9 62%,#a78bfa)}
+.qd-theme-menu .sw .tg{display:block;padding:5px 2px 6px;font-size:11.5px;font-weight:800;color:var(--ink-2);
+  text-align:center;background:var(--surface)}
+.qd-theme-menu .sw.on .tg{color:var(--mint-2)}
+.qd-theme-menu .sw svg.tick{position:absolute;top:4px;right:4px;width:13px;height:13px;color:#fff;
+  filter:drop-shadow(0 1px 2px rgba(0,0,0,.35))}
 :root[data-theme="dark"] .qd-theme-menu button:hover,
 :root[data-theme="dark"] .qd-theme-menu button.on{color:var(--mint-ink)}
 
@@ -2600,29 +2736,37 @@ body.dock-lift .dock-stack{transform:translateY(calc(-1 * var(--dock-h,68px)))}
     </a>
     <span class="qd-sep"></span>
     <div class="qd-theme-wrap" id="qdTheme" role="group" aria-label="外觀主題">
-      <button type="button" class="qd-theme-toggle" id="qdThemeBtn" aria-haspopup="true" aria-expanded="false" aria-controls="qdThemeMenu" title="切換外觀（淺色 / 深色 / 千禧粉）">
-        <svg id="qdThemeIco" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.6v2.2M12 19.2v2.2M2.6 12h2.2M19.2 12h2.2M5.4 5.4l1.6 1.6M17 17l1.6 1.6M18.6 5.4L17 7M7 17l-1.6 1.6"/></svg>
-        <span id="qdThemeLbl">淺色</span>
+      <button type="button" class="qd-theme-toggle" id="qdThemeBtn" aria-haspopup="true" aria-expanded="false" aria-controls="qdThemeMenu" title="切換皮膚 / 明暗">
+        <svg id="qdModeIco" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.6v2.2M12 19.2v2.2M2.6 12h2.2M19.2 12h2.2M5.4 5.4l1.6 1.6M17 17l1.6 1.6M18.6 5.4L17 7M7 17l-1.6 1.6"/></svg>
+        <span class="sw-dot" id="qdSkinDot" aria-hidden="true"></span>
+        <span id="qdThemeLbl">清新綠</span>
         <svg class="car" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
       </button>
-      <div class="qd-theme-menu" id="qdThemeMenu" role="menu" aria-label="選擇外觀">
-        <button type="button" role="menuitemradio" data-theme-act="light" aria-checked="false">
+      <div class="qd-theme-menu" id="qdThemeMenu" role="menu" aria-label="外觀設定">
+        <div class="grp">皮膚</div>
+        <div class="swatches">
+          <button type="button" role="menuitemradio" class="sw gn" data-skin-act="green" aria-checked="true" title="清新綠">
+            <svg class="tick" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg>
+            <span class="sp"></span><span class="tg">清新綠</span>
+          </button>
+          <button type="button" role="menuitemradio" class="sw pk" data-skin-act="pink" aria-checked="false" title="千禧粉">
+            <svg class="tick" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg>
+            <span class="sp"></span><span class="tg">千禧粉</span>
+          </button>
+        </div>
+        <div class="dsep"></div>
+        <div class="grp">明暗</div>
+        <button type="button" role="menuitemradio" data-mode-act="light" aria-checked="false">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.6v2.2M12 19.2v2.2M2.6 12h2.2M19.2 12h2.2M5.4 5.4l1.6 1.6M17 17l1.6 1.6M18.6 5.4L17 7M7 17l-1.6 1.6"/></svg>
           <span class="nm">淺色</span>
           <svg class="ck" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg>
         </button>
-        <button type="button" role="menuitemradio" data-theme-act="dark" aria-checked="false">
+        <button type="button" role="menuitemradio" data-mode-act="dark" aria-checked="false">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.3 14.4A8.6 8.6 0 0 1 9.6 3.7 8.7 8.7 0 1 0 20.3 14.4z"/></svg>
           <span class="nm">深色</span>
           <svg class="ck" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg>
         </button>
-        <button type="button" role="menuitemradio" data-theme-act="pink" aria-checked="false">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.5s-7.6-4.6-7.6-9.4A4.4 4.4 0 0 1 12 8.3a4.4 4.4 0 0 1 7.6 2.8c0 4.8-7.6 9.4-7.6 9.4z"/></svg>
-          <span class="nm">千禧粉</span>
-          <svg class="ck" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg>
-        </button>
-        <div class="dsep"></div>
-        <button type="button" role="menuitemradio" data-theme-act="auto" aria-checked="false">
+        <button type="button" role="menuitemradio" data-mode-act="auto" aria-checked="false">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3.5" width="20" height="13" rx="2.5"/><path d="M8.5 20.5h7M12 16.5v4"/></svg>
           <span class="nm">跟隨系統</span>
           <svg class="ck" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg>
@@ -4521,76 +4665,126 @@ function bindRate(){
   });
 }
 
-/* ===== 外觀主題：跟隨系統 / 淺色 / 深色 =====
-   選擇存 localStorage（cantonese_theme_v1）；空字串＝跟隨系統。
-   <html data-theme> 由 head 里的引導腳本先設好，這裡只負責切換與同步瀏覽器 UI 色。 */
+/* ===== 外觀：兩個獨立維度 =====
+   皮膚 skin：green（清新綠） / pink（千禧粉）——存 cantonese_skin_v1
+   明暗 mode：light / dark / auto（跟隨系統）——存 cantonese_theme_v1
+   兩者各自有自己的主題變數表：
+     green+light = :root 預設　　green+dark = html[data-theme="dark"]
+     pink+light  = html[data-theme="pink"]
+     pink+dark   = html[data-theme="pink"][data-mode="dark"]
+   <html> 上的屬性由 head 引導腳本先設好，這裡只負責切換與同步瀏覽器 UI 色。 */
 var THEME_KEY='cantonese_theme_v1';
-var THEME={ v:'auto' };
+var SKIN_KEY='cantonese_skin_v1';
+var THEME={ skin:'green', mode:'auto' };
 var MQ_DARK = (window.matchMedia ? window.matchMedia('(prefers-color-scheme:dark)') : null);
+// 舊版單一鍵可能存著 'pink'，要遷移過來
 function loadTheme(){
-  // ?theme=pink|dark|light 可直接指定外觀（分享連結、截圖、除錯用），並記住它
   try{
-    var q=new RegExp('[?&]theme=(pink|dark|light)').exec(location.search||'');
-    if(q){ THEME.v=q[1]; try{ localStorage.setItem(THEME_KEY,THEME.v); }catch(e2){} return; }
-  }catch(e){}
-  try{
+    var sp=localStorage.getItem(SKIN_KEY);
+    if(sp==='pink'||sp==='green') THEME.skin=sp;
     var t=localStorage.getItem(THEME_KEY);
-    if(t==='light'||t==='dark'||t==='pink') THEME.v=t; else THEME.v='auto';
-  }catch(e){ THEME.v='auto'; }
+    if(t==='pink'){ THEME.skin='pink'; THEME.mode='auto'; }
+    else if(t==='light'||t==='dark') THEME.mode=t;
+    else if(t==='auto') THEME.mode='auto';
+  }catch(e){}
+  // ?skin=pink&mode=dark 可直接指定（分享連結、截圖、除錯用）；舊的 ?theme= 也映射過來
+  try{
+    var qs=/[?&]skin=(pink|green)/.exec(location.search||'');
+    if(qs) THEME.skin=qs[1];
+    var qm=/[?&]mode=(light|dark|auto)/.exec(location.search||'');
+    if(qm) THEME.mode=qm[1];
+    var qt=/[?&]theme=(pink|dark|light)/.exec(location.search||'');
+    if(qt){
+      if(qt[1]==='pink'){ THEME.skin='pink'; if(!qm) THEME.mode='auto'; }
+      else if(!qm) THEME.mode=qt[1];
+    }
+  }catch(e){}
+  applyTheme(true);
 }
 function effectiveTheme(){
-  if(THEME.v==='light'||THEME.v==='dark'||THEME.v==='pink') return THEME.v;
+  if(THEME.mode==='light'||THEME.mode==='dark') return THEME.mode;
   return (MQ_DARK&&MQ_DARK.matches)?'dark':'light';
 }
 function applyTheme(persist){
   var eff=effectiveTheme();
   var de=document.documentElement;
-  if(THEME.v==='auto'){ de.removeAttribute('data-theme'); }
-  else{ de.setAttribute('data-theme',THEME.v); }
-  // 瀏覽器地址欄 / 狀態欄顏色跟著換
+  if(THEME.skin==='pink'){ de.setAttribute('data-theme','pink'); }
+  else if(eff==='dark'){ de.setAttribute('data-theme','dark'); }
+  else{ de.removeAttribute('data-theme'); }
+  // 夜間模式：粉色皮膚要靠 data-mode="dark" 才會切到粉夜配色
+  if(eff==='dark') de.setAttribute('data-mode','dark');
+  else de.removeAttribute('data-mode');
+  // 瀏覽器地址欄 / 狀態欄顏色跟著換（四套配色各有自己的底色）
   var m=document.getElementById('metaTheme');
-  if(m) m.setAttribute('content', eff==='dark'?'#0b1512':(eff==='pink'?'#fff5f9':'#f2fbf7'));
+  if(m) m.setAttribute('content',
+    THEME.skin==='pink' ? (eff==='dark'?'#170e14':'#fff5f9')
+                        : (eff==='dark'?'#0b1512':'#f2fbf7'));
   renderTheme();
   if(persist){
     try{
-      if(THEME.v==='auto') localStorage.removeItem(THEME_KEY);
-      else localStorage.setItem(THEME_KEY,THEME.v);
+      localStorage.setItem(SKIN_KEY,THEME.skin);
+      if(THEME.mode==='auto') localStorage.setItem(THEME_KEY,'auto');
+      else localStorage.setItem(THEME_KEY,THEME.mode);
     }catch(e){}
   }
 }
 var QD_ICO={
   light:'<circle cx="12" cy="12" r="4.2"/><path d="M12 2.6v2.2M12 19.2v2.2M2.6 12h2.2M19.2 12h2.2M5.4 5.4l1.6 1.6M17 17l1.6 1.6M18.6 5.4L17 7M7 17l-1.6 1.6"/>',
   dark:'<path d="M20.3 14.4A8.6 8.6 0 0 1 9.6 3.7 8.7 8.7 0 1 0 20.3 14.4z"/>',
-  pink:'<path d="M12 20.5s-7.6-4.6-7.6-9.4A4.4 4.4 0 0 1 12 8.3a4.4 4.4 0 0 1 7.6 2.8c0 4.8-7.6 9.4-7.6 9.4z"/>',
   auto:'<rect x="2" y="3.5" width="20" height="13" rx="2.5"/><path d="M8.5 20.5h7M12 16.5v4"/>'
 };
 function renderTheme(){
-  var eff=effectiveTheme();
-  var bs=document.querySelectorAll('#qdTheme [data-theme-act]');
-  for(var i=0;i<bs.length;i++){
-    var on=bs[i].getAttribute('data-theme-act')===THEME.v;
-    bs[i].classList.toggle('on',on);
-    bs[i].setAttribute('aria-checked',on?'true':'false');
+  var eff=effectiveTheme();          // light | dark
+  var skin=THEME.skin;               // green | pink
+  // 皮膚色塊
+  var sw=document.querySelectorAll('#qdTheme [data-skin-act]');
+  for(var i=0;i<sw.length;i++){
+    var onS=sw[i].getAttribute('data-skin-act')===skin;
+    sw[i].classList.toggle('on',onS);
+    sw[i].setAttribute('aria-checked',onS?'true':'false');
   }
-  // 按鈕本身顯示「當前實際生效的外觀」
-  var ico=document.getElementById('qdThemeIco');
-  if(ico){
-    var k=(THEME.v==='auto')?'auto':eff;
-    ico.innerHTML=QD_ICO[k]||QD_ICO.light;
+  // 明暗三項
+  var bs=document.querySelectorAll('#qdTheme [data-mode-act]');
+  for(var k=0;k<bs.length;k++){
+    var onM=bs[k].getAttribute('data-mode-act')===THEME.mode;
+    bs[k].classList.toggle('on',onM);
+    bs[k].setAttribute('aria-checked',onM?'true':'false');
   }
+  // 按鈕：圖示＝當前明暗，文字＝皮膚名
+  var ico=document.getElementById('qdModeIco');
+  if(ico) ico.innerHTML=QD_ICO[(THEME.mode==='auto')?'auto':eff]||QD_ICO.light;
   var lbl=document.getElementById('qdThemeLbl');
-  if(lbl) lbl.textContent=(THEME.v==='auto')?('跟隨系統'):themeName(eff);
+  if(lbl) lbl.textContent=skinName(skin);
+  var dot=document.getElementById('qdSkinDot');
+  if(dot) dot.style.opacity='1';
+}
+function skinName(s){ return s==='pink'?'千禧粉':'清新綠'; }
+function modeName(m){
+  return m==='dark'?'深色':(m==='light'?'淺色':'跟隨系統');
 }
 function themeName(v){
-  return v==='dark'?'深色':(v==='pink'?'千禧粉':(v==='light'?'淺色':'跟隨系統'));
+  // 兼容舊呼叫：v 可以是 light/dark/pink/auto
+  if(v==='pink') return '千禧粉';
+  if(v==='dark') return '深色';
+  if(v==='light') return '淺色';
+  return '跟隨系統';
 }
-function setTheme(v,silent){
-  THEME.v=(v==='light'||v==='dark'||v==='pink')?v:'auto';
+function themeSummary(){
+  var eff=effectiveTheme();
+  var skin=skinName(THEME.skin);
+  var m=THEME.mode;
+  if(m==='auto') return skin+' · 跟隨系統（現為'+(eff==='dark'?'深色':'淺色')+'）';
+  return skin+' · '+(eff==='dark'?'夜間':'日間');
+}
+function setSkin(s){
+  THEME.skin=(s==='pink')?'pink':'green';
   applyTheme(true);
-  if(!silent){
-    var eff=effectiveTheme();
-    toast('外觀：'+(THEME.v==='auto'?('跟隨系統（現為'+(eff==='dark'?'深色':(eff==='pink'?'千禧粉':'淺色'))+'）'):themeName(eff)));
-  }
+  toast('皮膚：'+skinName(THEME.skin)+'（'+(effectiveTheme()==='dark'?'夜間':'日間')+'）');
+}
+function setMode(v){
+  THEME.mode=(v==='light'||v==='dark')?v:'auto';
+  applyTheme(true);
+  toast('明暗：'+themeSummary());
 }
 function qdThemeOpen(open){
   var w=document.getElementById('qdTheme');
@@ -4610,10 +4804,10 @@ function bindTheme(){
     });
   }
   host.addEventListener('click',function(e){
-    var b=e.target.closest?e.target.closest('[data-theme-act]'):null;
-    if(!b) return;
-    setTheme(b.getAttribute('data-theme-act'));
-    qdThemeOpen(false);
+    var s=e.target.closest?e.target.closest('[data-skin-act]'):null;
+    if(s){ setSkin(s.getAttribute('data-skin-act')); return; }   // 皮膚切換面板留著，方便接著調明暗
+    var m=e.target.closest?e.target.closest('[data-mode-act]'):null;
+    if(m){ setMode(m.getAttribute('data-mode-act')); qdThemeOpen(false); return; }
   });
   // 點外面 / 按 Esc 收起來
   document.addEventListener('click',function(e){
@@ -4627,7 +4821,7 @@ function bindTheme(){
   });
   // 選「跟隨系統」時，系統切換要即時跟上
   if(MQ_DARK){
-    var onChange=function(){ if(THEME.v==='auto') applyTheme(false); };
+    var onChange=function(){ if(THEME.mode==='auto') applyTheme(false); };
     if(MQ_DARK.addEventListener) MQ_DARK.addEventListener('change',onChange);
     else if(MQ_DARK.addListener) MQ_DARK.addListener(onChange);
   }
