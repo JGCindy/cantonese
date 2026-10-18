@@ -23393,12 +23393,20 @@ function bindCollapse(){
 
 /* ===== 懸浮層避讓：右下角工具組與音量條不重疊 ===== */
 function syncDock(){
+  /* 幾何法：直接算「工具組底邊要落在音量條頂邊上方 11px」，不再用 高度+18 估算。
+     舊算法在移動端會與媒體查詢裏寫死的 .dock-stack bottom 值（72px）疊加，
+     導致右下角兩個懸浮塊間隔被撐到 65~78px（桌面只有 11px）。 */
   var vol=document.getElementById('volDock');
-  if(!vol) return;
-  var h=Math.round(vol.getBoundingClientRect().height)+18;
-  document.documentElement.style.setProperty('--dock-h',h+'px');
+  var stack=document.querySelector('.dock-stack');
+  if(!vol||!stack) return;
+  var top=vol.getBoundingClientRect().top;                     /* 音量條頂邊（視口座標） */
+  var bs=parseFloat(getComputedStyle(stack).bottom)||18;       /* 工具組自身的 bottom 錨點 */
+  var lift=Math.round(innerHeight - top + 11 - bs);            /* 上抬量＝貼到音量條頂再留 11px */
+  document.documentElement.style.setProperty('--dock-h',lift+'px');
   document.body.classList.add('dock-lift');
 }
+/* 轉屏 / 改變窗口大小時音量條高度會變（移動端 640px 以下換了另一套尺寸），必須重算 */
+window.addEventListener('resize',syncDock);
 
 /* ===== init ===== */
 document.addEventListener('DOMContentLoaded',function(){
