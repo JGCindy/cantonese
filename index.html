@@ -21932,7 +21932,14 @@ function resetDayWords(d){
   updateProgress();
 }
 
-var DICT_DIR={l:'media/lshk/',j:'media/jc/'};
+/* 錄音位址規則：
+   本機（file:// 開啟）→ 走相對路徑，讀同層的 media/ 資料夾，斷網也能聽；
+   線上（http/https 開啟）→ 一律指向固定的公開位址，
+   這樣資料庫頁面、手機、別人的電腦打開都能聽到同一套真人錄音。
+   錄音檔缺失時 playEntry 會自動退回瀏覽器粵語語音，不會靜音。 */
+var MEDIA_HOST='https://jgcindy.github.io/cantonese/';
+var MEDIA_BASE=(location.protocol==='file:')?'':MEDIA_HOST;
+var DICT_DIR={l:MEDIA_BASE+'media/lshk/',j:MEDIA_BASE+'media/jc/'};
 var DICT=[],DICT_MAP={},JC_ENTRIES=[],TONE_GROUPS=[];
 var DD={mode:'tone',cur:null,right:0,total:0,best:0,streak:0,armed:false};
 var DST={kw:'',chip:'all',sort:'page',rows:[],shown:0};
